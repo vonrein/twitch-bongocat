@@ -1,5 +1,5 @@
 ## Add the bongo cat to your stream
-A nice little bongo cat themed drum machine.
+A nice little bongo cat themed drum machine.  
 Be warned: This is a work in progress. It does work great but the setup process is still a bit hard for unexperienced users and there is no input sanitation whatsoever. We are just getting started.
 ### What does it do?
 Bongo Cat for Twitch lets the popular meme cat appear on your screen whenever someone in your Twitch chat issues a command.
@@ -24,6 +24,6 @@ As of now, there are the same instruments as on https://bongo.cat.
 ### Can i modify this?
 Yes. And please show us the results.
 ### Who did this?
-The code was written by [CodeHustle](https://twitch.tv/codehustle) and [JvPeek](https://twitch.tv/jvpeek)
-The initial compilation of sounds and images was done by [Externalizable](https://github.com/Externalizable)
+The code was written by [CodeHustle](https://twitch.tv/codehustle) and [JvPeek](https://twitch.tv/jvpeek)  
+The initial compilation of sounds and images was done by [Externalizable](https://github.com/Externalizable)  
 Bongo cat was drawn by [StrayRogue](https://twitter.com/StrayRogue)
