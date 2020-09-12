@@ -12,8 +12,8 @@ Easy.
 
 **Warning**: NEVER show your OAuth token on stream or give it to anyone. Don't trust anyone.
 ### How do i use it?
-There are two commands:
- *`!bpm`
+There are two commands:  
+ * `!bpm`
 Lets you choose the speed of the song.
  * `!bongo [notes]`
 Plays back the sounds in chunks.
