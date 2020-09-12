@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bongo away!</title>
+    <link rel="stylesheet" href="bongocat.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
+  </head>
+  <body onload="window.scrollTo(0, 0);">
+    <div id="bongocat">
+      <div id="table">
+      </div>
+      <div id="instruments">
+        <div id="bongo"></div>
+        <div id="keyboard"></div>
+        <div id="cymbal"></div>
+        <div id="marimba"></div>
+        <div id="tambourine"></div>
+        <div id="cowbell"></div>
+      </div>
+
+      <div id="cat">
+        <div id="head"></div>
+        <div id="mouth"></div>
+        <div id="paw-left"></div>
+        <div id="paw-right"></div>
+        <div id="nametagwrapper"><span id="nametag"></span></div>
+      </div>
+    </div>
+    <audio data-key="A" data-paw="paw-left"  data-instrument="bongo" src="sounds/bongocat/bongo0.mp3"></audio>
+    <audio data-key="S" data-paw="paw-right" data-instrument="bongo" src="sounds/bongocat/bongo1.mp3"></audio>
+    <audio data-key="D" data-paw="paw-left"  data-instrument="cowbell" src="sounds/bongocat/cowbell.mp3"></audio>
+    <audio data-key="F" data-paw="paw-left"  data-instrument="cymbal" src="sounds/bongocat/cymbal.mp3"></audio>
+    <audio data-key="G" data-paw="paw-left"  data-instrument="tombourine" src="sounds/bongocat/tambourine.mp3"></audio>
+    <audio data-key="M" data-paw="mouth"     data-instrument="none" src="sounds/bongocat/meow.mp3"></audio>
+
+    <audio data-key="1" data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard1.mp3"></audio>
+    <audio data-key="2" data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard2.mp3"></audio>
+    <audio data-key="3" data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard3.mp3"></audio>
+    <audio data-key="4" data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard4.mp3"></audio>
+    <audio data-key="5" data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard5.mp3"></audio>
+    <audio data-key="6" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard6.mp3"></audio>
+    <audio data-key="7" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard7.mp3"></audio>
+    <audio data-key="8" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard8.mp3"></audio>
+    <audio data-key="9" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard9.mp3"></audio>
+    <audio data-key="0" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard0.mp3"></audio>
+
+    <audio data-key="Q" data-paw="paw-left"  data-instrument="marimba" src="sounds/bongocat/marimba1.mp3"></audio>
+    <audio data-key="W" data-paw="paw-left"  data-instrument="marimba" src="sounds/bongocat/marimba2.mp3"></audio>
+    <audio data-key="E" data-paw="paw-left"  data-instrument="marimba" src="sounds/bongocat/marimba3.mp3"></audio>
+    <audio data-key="R" data-paw="paw-left"  data-instrument="marimba" src="sounds/bongocat/marimba4.mp3"></audio>
+    <audio data-key="T" data-paw="paw-left"  data-instrument="marimba" src="sounds/bongocat/marimba5.mp3"></audio>
+    <audio data-key="Y" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba6.mp3"></audio>
+    <audio data-key="U" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba7.mp3"></audio>
+    <audio data-key="I" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba8.mp3"></audio>
+    <audio data-key="O" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba9.mp3"></audio>
+    <audio data-key="P" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba0.mp3"></audio>
+
+    <script src="//unpkg.com/twitch-js@>2.0.0-beta.31"></script>
+
+    <script type="module">
+
+      import { config } from './config.js';
+      (function () {
+        const token = config().OAUTH_TOKEN;
+        const username = config().BOT_USERNAME;
+
+        const channel = config().CHANNEL_NAME;
+        var bpm;
+
+        setBPM(128);
+        const { api, chat } = new TwitchJs({ token, username });
+
+        const handleMessage = (msg) => {
+
+          if (!msg.message) { return; }
+          if (msg.message.startsWith("!")) {
+            if (msg.message.startsWith("!bongo ")) {
+              const notes = msg.message.substr(7);
+              addNotes(notes.toUpperCase());
+              introAnimation(msg.username);
+            }
+            if (msg.message.startsWith("!bpm ")) {
+              const targetBPM = Number(msg.message.substr(5));
+              if (targetBPM < 512 && targetBPM > 49) {
+                setBPM(targetBPM);
+              }
+
+            }
+          }
+
+        };
+
+        function setBPM(targetBPM) {
+          console.log("current BPM: " + bpm + ". Target :" + Math.floor(60000 / targetBPM));
+          bpm = Math.floor(60000 / targetBPM);
+        }
+        function playSound(cmd) {
+          console.log("playing notes: " + cmd);
+
+          const audio = document.querySelector(`audio[data-key="${cmd}"]`);
+          console.log(audio.dataset.instrument);
+          setInstrument(audio.dataset.instrument);
+          setPaw(audio.dataset.paw);
+          if (!audio) return;
+
+
+          audio.currentTime = 0;
+          audio.play();
+        }
+        function addNotes(noteString) {
+          var noteBatches = noteString.split(" ");
+          var thisNote;
+          var thisTimer;
+
+          for (var noteBatch in noteBatches) {
+            for (var i = 0; i<noteBatches[noteBatch].length; i++) {
+              thisNote = noteBatches[noteBatch].charAt(i);
+              thisTimer = 1000 + (bpm*noteBatch);
+              console.log(thisNote)
+              setTimeout(playSound,thisTimer,thisNote);
+            }
+          }
+          thisTimer += bpm;
+          setTimeout(outroAnimation,thisTimer);
+        }
+        function introAnimation(username) {
+          document.getElementById("nametag").innerHTML=username + " entered the stage";
+          document.getElementById("bongocat").style.left="0px";
+        }
+        function outroAnimation() {
+          document.getElementById("bongocat").style.left="-1920px";
+          setInstrument("none");
+        }
+        function setInstrument(instrument) {
+          var c = document.getElementById("instruments").children;
+          for (var i = 0; i < c.length; i++) {
+            c[i].style.visibility = "hidden";
+          }
+          var newInstrument = document.getElementById(instrument);
+          if (!newInstrument) { return; }
+          newInstrument.style.visibility = "visible";
+
+        }
+        function setPaw(paw) {
+          var currentPaw = document.getElementById(paw);
+          currentPaw.style.backgroundPosition = "top right";
+          window.setTimeout(releasePaw, bpm/2, paw);
+        }
+        function releasePaw(paw) {
+
+            var currentPaw = document.getElementById(paw);
+            currentPaw.style.backgroundPosition = "top left";
+        }
+
+        chat.on(TwitchJs.Chat.Events.ALL, handleMessage);
+
+        chat.connect().then(() => {
+          chat.join(channel);
+        });
+      })();
+    </script>
+  </body>
+</html>

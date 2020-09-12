@@ -1,0 +1,114 @@
+html {
+  font-size: 10px;
+}
+
+body,html {
+  height: 1080px;
+  min-height: 1080px;
+  width: 1920px;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+#bongocat {
+  position: absolute;
+  left: -1920px;
+  width: 1920px;
+  height: 1080px;
+  transition:left 0.5s ease-in-out;
+
+}
+#table {
+  float: left;
+  border-top: 10px solid black;
+  background: white;
+  height: 410px;
+  width: 1920px;
+  transform: rotate(14deg);
+  transform-origin: top left;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+}
+
+#cat {
+  width: 800px;
+  height: 450px;
+  display: block;
+  position: absolute;
+  transform-origin: top left;
+  bottom: 0px;
+  left: 0px;
+}
+
+#cat div {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+#head {
+  background: url("images/cat.png");
+}
+#mouth {
+  background: url("images/mouth.png");
+}
+#paw-left {
+  background: url("images/paw-left.png");
+  background-position: left top;
+}
+#paw-right {
+  background: url("images/paw-right.png");
+
+  background-position: left top;
+}
+#nametag {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  background: rgba(0,0,0,0.5);
+  font-size: 60px;
+  color: white;
+  position: absolute;
+  top: -100px;
+  left: 500px;
+  white-space: nowrap;
+  padding: 10px 15px;
+}
+#instruments {
+  width: 800px;
+  height: 450px;
+  display: block;
+  position: absolute;
+  transform-origin: top left;
+  bottom: 0px;
+  left: 0px;
+}
+
+#instruments div {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  visibility: hidden;
+}
+#instruments #bongo {
+  background: url("images/bongo.png");
+}
+#instruments #keyboard {
+  background: url("images/keyboard.png");
+}
+#instruments #cymbal {
+  background: url("images/cymbal.png");
+}
+#instruments #marimba {
+  background: url("images/marimba.png");
+}
+#instruments #tambourine {
+  background: url("images/tambourine.png");
+}
+#instruments #cowbell {
+  background: url("images/cowbell.png");
+}
