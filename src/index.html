@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Bongo away!</title>
+    <title>JS Drum Kit</title>
     <link rel="stylesheet" href="bongocat.css" />
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
   </head>
@@ -51,6 +51,7 @@
     <audio data-key="R" data-paw="paw-left"  data-instrument="marimba" src="sounds/bongocat/marimba4.mp3"></audio>
     <audio data-key="T" data-paw="paw-left"  data-instrument="marimba" src="sounds/bongocat/marimba5.mp3"></audio>
     <audio data-key="Y" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba6.mp3"></audio>
+    <audio data-key="Z" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba6.mp3"></audio>
     <audio data-key="U" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba7.mp3"></audio>
     <audio data-key="I" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba8.mp3"></audio>
     <audio data-key="O" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba9.mp3"></audio>
@@ -67,7 +68,8 @@
 
         const channel = config().CHANNEL_NAME;
         var bpm;
-
+        var queue = [];
+        var playing = false;
         setBPM(128);
         const { api, chat } = new TwitchJs({ token, username });
 
@@ -77,15 +79,13 @@
           if (msg.message.startsWith("!")) {
             if (msg.message.startsWith("!bongo ")) {
               const notes = msg.message.substr(7);
-              addNotes(notes.toUpperCase());
-              introAnimation(msg.username);
+              addToQueue(notes.toUpperCase(), msg.username);
             }
             if (msg.message.startsWith("!bpm ")) {
               const targetBPM = Number(msg.message.substr(5));
               if (targetBPM < 512 && targetBPM > 49) {
                 setBPM(targetBPM);
               }
-
             }
           }
 
@@ -96,10 +96,8 @@
           bpm = Math.floor(60000 / targetBPM);
         }
         function playSound(cmd) {
-          console.log("playing notes: " + cmd);
 
           const audio = document.querySelector(`audio[data-key="${cmd}"]`);
-          console.log(audio.dataset.instrument);
           setInstrument(audio.dataset.instrument);
           setPaw(audio.dataset.paw);
           if (!audio) return;
@@ -108,16 +106,39 @@
           audio.currentTime = 0;
           audio.play();
         }
-        function addNotes(noteString) {
+        function addToQueue(noteString, username) {
+          var newNoteStack=[];
+          newNoteStack[0]=noteString;
+          newNoteStack[1]=username;
+          queue.push(newNoteStack);
+        }
+
+        function getFromQueue() {
+          var returnvalue = queue.pop();
+          return returnvalue;
+        }
+        function startQueue() {
+          setInterval(checkQueue, 1000);
+        }
+        function checkQueue() {
+          if (queue.length > 0 && playing == false) {
+            var notes = getFromQueue();
+            addNotes(notes[0], notes[1]);
+
+          }
+
+        }
+        function addNotes(noteString, username) {
           var noteBatches = noteString.split(" ");
           var thisNote;
           var thisTimer;
+          introAnimation(username);
 
           for (var noteBatch in noteBatches) {
+            noteBatches[noteBatch] = noteBatches[noteBatch].substr(0,5);
             for (var i = 0; i<noteBatches[noteBatch].length; i++) {
               thisNote = noteBatches[noteBatch].charAt(i);
               thisTimer = 1000 + (bpm*noteBatch);
-              console.log(thisNote)
               setTimeout(playSound,thisTimer,thisNote);
             }
           }
@@ -127,10 +148,14 @@
         function introAnimation(username) {
           document.getElementById("nametag").innerHTML=username + " entered the stage";
           document.getElementById("bongocat").style.left="0px";
+          playing=true;
         }
         function outroAnimation() {
           document.getElementById("bongocat").style.left="-1920px";
           setInstrument("none");
+          setTimeout(function(){
+            playing = false;
+        }, 1000);
         }
         function setInstrument(instrument) {
           var c = document.getElementById("instruments").children;
@@ -157,6 +182,7 @@
 
         chat.connect().then(() => {
           chat.join(channel);
+          startQueue();
         });
       })();
     </script>
