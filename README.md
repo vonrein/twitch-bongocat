@@ -5,10 +5,8 @@ Be warned: This is a work in progress. It does work great but the setup process 
 Bongo Cat for Twitch lets the popular meme cat appear on your screen whenever someone in your Twitch chat issues a command.
 ### How do i install it?
 Easy.
-1. rename the file `config.js.example` to `config.js`
-2. Add your Twitch Username and OAuth Token to `config.js`. You can get a Token here: https://twitchapps.com/tmi
-3. host the src folder locally. If you have python installed, an easy way would be `python3 -m http.server`
-4. Point your OBS browser source to your bongocat server. For example `http://localhost:8000`. Set the size of the browser to 1920x1080 pixels.
+1. Add your Twitch Username and OAuth Token to `index.html` on the very bottom. You can get a Token here: https://twitchapps.com/tmi
+2. Point your OBS browser source to the index.html file. Set the size of the browser to 1920x1080 pixels.
 
 **Warning**: NEVER show your OAuth token on stream or give it to anyone. Don't trust anyone.
 ### How do i use it?
