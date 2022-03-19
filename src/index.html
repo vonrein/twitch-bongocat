@@ -156,8 +156,7 @@
 
 
         // tmijs
-
-        const channel = location.hash;
+        const channel = location.hash || 'jvpeek';
         const chatClient = new tmi.Client({
           channels: [channel]
         });
