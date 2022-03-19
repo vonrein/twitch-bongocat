@@ -3,12 +3,13 @@ A nice little bongo cat themed drum machine.
 Be warned: This is a work in progress.
 ### What does it do?
 Bongo Cat for Twitch lets the popular meme cat appear on your screen whenever someone in your Twitch chat issues a command.
-### How do i use it?
+### How do i add it to my stream? (easy route, START HERE)
  * Add a new browser source and point it to https://jvpeek.de/ext/bc/#yourchannel
  * Set the size of the browser to 1920x1080 pixels.
 Done.
-### How do i install it locally?
-Easy.
+
+### How do i install it locally? (advanced users)
+If you want to modify the sounds or the behavior you can also run it locally.
 
  * Point your OBS browser source to the index.html file and add your channel name as a hash.
 
