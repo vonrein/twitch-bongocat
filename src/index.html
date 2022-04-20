@@ -245,10 +245,13 @@
           var thisTimer;
           
           for (var noteBatch in noteBatches) {
-            noteBatches[noteBatch] = noteBatches[noteBatch].substr(0,5);
-            for (var i = 0; i<noteBatches[noteBatch].length; i++) {
-              thisNote = noteBatches[noteBatch].charAt(i);
-              
+            var notes = parseNotes(noteBatches[noteBatch].substr(0,5));
+
+            console.log(`result notes: ${notes}`);
+
+            for (var noteIdx in notes) {
+              thisNote = notes[noteIdx];
+
               if (isLegacyNotation)
                 thisNote += "L";
               
@@ -307,6 +310,11 @@
         chatClient.on('message', (channel, tags, message, self) => {
 
           if (message.startsWith("!")) {
+            if (message.startsWith("!bongo+ ")) {
+              const notes = message.substr(8);
+              console.log(`${tags.username} plays ${notes}.`);
+              addToQueue(notes.toUpperCase(), tags.username, false);
+            }
             if (message.startsWith("!bongo ")) {
               const notes = message.substr(7);
               console.log(`${tags.username} plays ${notes}.`);
