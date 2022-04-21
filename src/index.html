@@ -271,8 +271,8 @@
           switch (state) {
             case fsmNote:
             case fsmSharp: {
+              console.log("epsilon");
               resultNotes.push(thisNote);
-              thisNote = "";
               break;
             }
           }
