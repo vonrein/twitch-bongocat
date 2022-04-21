@@ -58,11 +58,11 @@
     <audio data-key="OL" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/g4s.mp3"></audio>
     <audio data-key="PL" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/a4.mp3"></audio>
 
-    <audio data-key="^1"  data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/c5.mp3"></audio>
-    <audio data-key="^1#" data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/c5s.mp3"></audio>
-    <audio data-key="^2"  data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/d5.mp3"></audio>
-    <audio data-key="^2#" data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/d5s.mp3"></audio>
-    <audio data-key="^3"  data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/e5.mp3"></audio>
+    <audio data-key="^1"  data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c5.mp3"></audio>
+    <audio data-key="^1#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c5s.mp3"></audio>
+    <audio data-key="^2"  data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/d5.mp3"></audio>
+    <audio data-key="^2#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/d5s.mp3"></audio>
+    <audio data-key="^3"  data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/e5.mp3"></audio>
     <audio data-key="^4"  data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/f5.mp3"></audio>
     <audio data-key="^4#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/f5s.mp3"></audio>
     <audio data-key="^5"  data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/g5.mp3"></audio>
@@ -76,7 +76,7 @@
     <audio data-key="2"  data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/d4.mp3"></audio>
     <audio data-key="2#" data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/d4s.mp3"></audio>
     <audio data-key="3"  data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/e4.mp3"></audio>
-    <audio data-key="4"  data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/f4.mp3"></audio>
+    <audio data-key="4"  data-paw="paw-left"  data-instrument="keyboard" src="sounds/bongocat/keyboard/f4.mp3"></audio>
     <audio data-key="4#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/f4s.mp3"></audio>
     <audio data-key="5"  data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g4.mp3"></audio>
     <audio data-key="5#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g4s.mp3"></audio>
@@ -84,11 +84,11 @@
     <audio data-key="6#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/a4s.mp3"></audio>
     <audio data-key="7"  data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/b4.mp3"></audio>
 
-    <audio data-key="V1"  data-paw="paw-right"  data-instrument="keyboard" src="sounds/bongocat/keyboard/c3.mp3"></audio>
-    <audio data-key="V1#" data-paw="paw-right"  data-instrument="keyboard" src="sounds/bongocat/keyboard/c3s.mp3"></audio>
-    <audio data-key="V2"  data-paw="paw-right"  data-instrument="keyboard" src="sounds/bongocat/keyboard/d3.mp3"></audio>
-    <audio data-key="V2#" data-paw="paw-right"  data-instrument="keyboard" src="sounds/bongocat/keyboard/d3s.mp3"></audio>
-    <audio data-key="V3"  data-paw="paw-right"  data-instrument="keyboard" src="sounds/bongocat/keyboard/e3.mp3"></audio>
+    <audio data-key="V1"  data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/c3.mp3"></audio>
+    <audio data-key="V1#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/c3s.mp3"></audio>
+    <audio data-key="V2"  data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/d3.mp3"></audio>
+    <audio data-key="V2#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/d3s.mp3"></audio>
+    <audio data-key="V3"  data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/e3.mp3"></audio>
     <audio data-key="V4"  data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/f3.mp3"></audio>
     <audio data-key="V4#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/f3s.mp3"></audio>
     <audio data-key="V5"  data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g3.mp3"></audio>
@@ -194,50 +194,50 @@
           const fsmPitch  = 2;
           const fsmNote   = 3;
           const fsmSharp  = 4;
-    
+
           var resultNotes = [];
           var thisNote;
           var state = fsmStart;
-    
+
           for (var i = 0; i < noteBatch.length; i++) {
             var curChar = noteBatch[i];
-    
+
             switch (state) {
               case fsmError: {
                 console.log("fsmError");
-      
+
                 break;
               }
-      
+
               case fsmStart: {
                 console.log("fsmStart");
-      
+
                 thisNote = curChar;
-      
+
                 if (curChar == "^" || curChar == "V")
                   state = fsmPitch;
                 else
                   state = fsmNote;
-      
+
                 break;
               }
-      
+
               case fsmPitch: {
                 console.log("fsmPitch");
-      
+
                 if (curChar == "^" || curChar == "V" || curChar == "#")
                   state = fsmError;
                 else {
                   thisNote += curChar;
                   state = fsmNote;
                 }
-      
+
                 break;
               }
-      
+
               case fsmNote: {
                 console.log("fsmNote");
-      
+
                 if (curChar == "#") {
                   thisNote += curChar;
                   state = fsmSharp;
@@ -247,13 +247,13 @@
                   state = fsmStart;
                   i--;
                 }
-      
+
                 break;
               }
-      
+
               case fsmSharp: {
                 console.log("fsmSharp");
-      
+
                 if (curChar == "#")
                   state = fsmError;
                 else {
@@ -261,12 +261,12 @@
                   state = fsmStart;
                   i--;
                 }
-      
-              break;
+
+                break;
               }
-            } 
+            }
           }
-    
+
           // epsilon:
           switch (state) {
             case fsmNote:
@@ -276,14 +276,14 @@
               break;
             }
           }
-    
+
           return resultNotes;
         }
         function addNotes(noteString, isLegacyNotation) {
           var noteBatches = noteString.split(" ");
           var thisNote;
           var thisTimer;
-          
+
           for (var noteBatch in noteBatches) {
             var notes = parseNotes(noteBatches[noteBatch].substr(0,5));
 
@@ -294,7 +294,7 @@
 
               if (isLegacyNotation)
                 thisNote += "L";
-              
+
               thisTimer = 1000 + (bpm*noteBatch);
               setTimeout(playSound,thisTimer,thisNote);
             }
