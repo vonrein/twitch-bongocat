@@ -362,7 +362,7 @@
             }
             if (message.startsWith("!bpm ")) {
               const targetBPM = Number(message.substr(5));
-              if (targetBPM < 512 && targetBPM > 49) {
+              if (targetBPM <= 600 && targetBPM > 49) {
                 console.log(`${tags.username} set BPM to ${targetBPM}.`);
                 setBPM(targetBPM);
               }
