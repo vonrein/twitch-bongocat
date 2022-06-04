@@ -223,7 +223,6 @@
                 console.log("fsmStart");
 
                 thisNote = curChar;
-                bpm = "";
 
                 if (curChar == "^" || curChar == "V")
                   state = fsmPitch;
@@ -286,9 +285,6 @@
               console.log("epsilon");
               resultNotes.push(thisNote);
               break;
-            }
-            case fsmBPM: {
-
             }
           }
 
