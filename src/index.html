@@ -154,6 +154,9 @@
         setBPM(128);
 
         function setBPM(targetBPM) {
+          if (targetBPM > 600 || targetBPM < 50) {
+            return;
+          }
           console.log("current BPM: " + bpm + ". Target :" + Math.floor(60000 / targetBPM));
           bpm = Math.floor(60000 / targetBPM);
         }
@@ -225,7 +228,6 @@
                   state = fsmPitch;
                 else
                   state = fsmNote;
-
                 break;
               }
 
@@ -289,20 +291,31 @@
         function addNotes(noteString, isLegacyNotation) {
           var noteBatches = noteString.split(" ");
           var thisNote;
-          var thisTimer;
-
+          var thisTimer = 1000;
           for (var noteBatch in noteBatches) {
             var notes = parseNotes(noteBatches[noteBatch].substr(0,5));
+            if (notes.length > 0 && notes[0] == ",") {
+                let sBpm = "";
+                for (var i = 1; i <= notes.length; i++) {
+                    if (isNaN(notes[i])) {
+                        break;
+                    }
+                    sBpm += notes[i];
+                }
+                sBpm = sBpm.substring(0, 3);
+                setBPM(Number(sBpm))
+                continue
+            }
 
             console.log(`result notes: ${notes}`);
 
+            thisTimer += bpm;
             for (var noteIdx in notes) {
               thisNote = notes[noteIdx];
 
               if (isLegacyNotation)
                 thisNote += "L";
 
-              thisTimer = 1000 + (bpm*noteBatch);
               setTimeout(playSound,thisTimer,thisNote);
             }
           }
