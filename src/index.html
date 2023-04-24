@@ -19,6 +19,7 @@
       <div id="marimba"></div>
       <div id="tambourine"></div>
       <div id="cowbell"></div>
+      <div id="TR808"></div>  <!-- Added TR808 Pic here -->
     </div>
 
     <div id="cat">
@@ -36,6 +37,15 @@
   <audio data-key="FL" data-paw="paw-left" data-instrument="cymbal" src="sounds/bongocat/cymbal.mp3"></audio>
   <audio data-key="GL" data-paw="paw-left" data-instrument="tambourine" src="sounds/bongocat/tambourine.mp3"></audio>
   <audio data-key="ML" data-paw="mouth" data-instrument="none" src="sounds/bongocat/meow.mp3"></audio>
+
+    <!-- extended drums start here, add 4 new sound to emty Keys X, C, B and N--> 
+
+    <audio data-key="XL" data-paw="paw-left" data-instrument="TR808" src="sounds/bongocat/BD.mp3"></audio>
+    <audio data-key="CL" data-paw="paw-right" data-instrument="TR808" src="sounds/bongocat/SD.mp3"></audio>
+    <audio data-key="BL" data-paw="paw-left" data-instrument="TR808" src="sounds/bongocat/CH.mp3"></audio>
+    <audio data-key="NL" data-paw="paw-right" data-instrument="TR808" src="sounds/bongocat/OH.mp3"></audio>
+  
+    <!-- extended drums ends here--> 
 
   <audio data-key="1L" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c4.mp3"></audio>
   <audio data-key="2L" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c4s.mp3"></audio>
@@ -66,6 +76,15 @@
   <audio data-key="F" data-paw="paw-left" data-instrument="cymbal" src="sounds/bongocat/cymbal.mp3"></audio>
   <audio data-key="G" data-paw="paw-left" data-instrument="tambourine" src="sounds/bongocat/tambourine.mp3"></audio>
   <audio data-key="M" data-paw="mouth" data-instrument="none" src="sounds/bongocat/meow.mp3"></audio>
+
+  <!-- extended drums start here, add 4 new sound to emty Keys X, C, B and N--> 
+
+  <audio data-key="X" data-paw="paw-left" data-instrument="TR808" src="sounds/bongocat/BD.mp3"></audio>
+  <audio data-key="C" data-paw="paw-right" data-instrument="TR808" src="sounds/bongocat/SD.mp3"></audio>
+  <audio data-key="B" data-paw="paw-left" data-instrument="TR808" src="sounds/bongocat/CH.mp3"></audio>
+  <audio data-key="N" data-paw="paw-right" data-instrument="TR808" src="sounds/bongocat/OH.mp3"></audio>
+
+  <!-- extended drums ends here--> 
 
   <audio data-key="^1" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c5.mp3"></audio>
   <audio data-key="^1#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c5s.mp3"></audio>
@@ -158,7 +177,7 @@
       setBPM(128);
 
       function setBPM(targetBPM, username) {
-        if (targetBPM > 600 || targetBPM < 50) {
+        if (targetBPM > 800 || targetBPM < 50) {
           return;
         }
         if (username === undefined) {
