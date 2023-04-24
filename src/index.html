@@ -150,18 +150,24 @@
   <script type="module">
 
     (function () {
-      var bpm;
+      var bpm = {};
+      bpm.user = {};
       var queue = [];
       var bongoEnabled = true;
       var playing = false;
       setBPM(128);
 
-      function setBPM(targetBPM) {
+      function setBPM(targetBPM, username) {
         if (targetBPM > 600 || targetBPM < 50) {
           return;
         }
-        console.log("current BPM: " + bpm + ". Target :" + Math.floor(60000 / targetBPM));
-        bpm = Math.floor(60000 / targetBPM);
+        if (username === undefined) {
+          console.log("<Global> current BPM: " + bpm.global + ". Target: " + Math.floor(60000 / targetBPM));
+          bpm.global = Math.floor(60000 / targetBPM);
+        } else {
+          console.log("<User> current BPM for "+username+": " + bpm.user[username] + ". Target: " + Math.floor(60000 / targetBPM));
+          bpm.user[username] = Math.floor(60000 / targetBPM);
+        }
       }
       function playSound(cmd) {
 
@@ -197,7 +203,7 @@
           var isLegacyNotation = song[2];
 
           introAnimation(username);
-          addNotes(noteString, isLegacyNotation);
+          addNotes(noteString, isLegacyNotation, username);
         }
 
       }
@@ -291,10 +297,18 @@
 
         return resultNotes;
       }
-      function addNotes(noteString, isLegacyNotation) {
+      function addNotes(noteString, isLegacyNotation, username) {
         var noteBatches = noteString.split(" ");
         var thisNote;
         var thisTimer = 1000;
+        var uBPM;
+
+        if (bpm.user[username] === undefined) {
+          uBPM = bpm.global;
+        } else {
+          uBPM = bpm.user[username];
+        }
+
         for (var noteBatch in noteBatches) {
           var notes = parseNotes(noteBatches[noteBatch].substr(0, 5));
           if (notes.length > 0 && notes[0] == ",") {
@@ -306,13 +320,13 @@
               sBpm += notes[i];
             }
             sBpm = sBpm.substring(0, 3);
-            setBPM(Number(sBpm))
+            setBPM(Number(sBpm));
             continue
           }
 
           console.log(`result notes: ${notes}`);
 
-          thisTimer += bpm;
+          thisTimer += uBPM;
           for (var noteIdx in notes) {
             thisNote = notes[noteIdx];
 
@@ -322,7 +336,7 @@
             setTimeout(playSound, thisTimer, thisNote);
           }
         }
-        thisTimer += bpm;
+        thisTimer += uBPM;
         setTimeout(outroAnimation, thisTimer);
       }
       function introAnimation(username) {
@@ -400,7 +414,7 @@
             const targetBPM = Number(message.substr(5));
             if (targetBPM <= 600 && targetBPM > 49) {
               console.log(`${tags.username} set BPM to ${targetBPM}.`);
-              setBPM(targetBPM);
+              setBPM(targetBPM, tags.username);
             }
           }
 
