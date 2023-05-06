@@ -316,17 +316,20 @@
 
         return resultNotes;
       }
+      function getBpm(username) {
+        if (username === undefined || bpm.user[username] === undefined) {
+          return bpm.global;
+        } else {
+          return bpm.user[username];
+        }
+      }
+
       function addNotes(noteString, isLegacyNotation, username) {
         var noteBatches = noteString.split(" ");
         var thisNote;
         var thisTimer = 1000;
         var uBPM;
-
-        if (bpm.user[username] === undefined) {
-          uBPM = bpm.global;
-        } else {
-          uBPM = bpm.user[username];
-        }
+        uBPM = getBpm(username);
 
         for (var noteBatch in noteBatches) {
           var notes = parseNotes(noteBatches[noteBatch].substr(0, 5));
@@ -339,7 +342,8 @@
               sBpm += notes[i];
             }
             sBpm = sBpm.substring(0, 3);
-            setBPM(Number(sBpm));
+            setBPM(Number(sBpm), username);
+            uBPM = getBpm(username);
             continue
           }
 
