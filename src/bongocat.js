@@ -1,257 +1,245 @@
+import {parseSong as parseSongBongo} from "./modules/bongo.js";
 
-//global state
+// ====================================================== //
+// ================== type definitions ================== //
+// ====================================================== //
+
+/**
+ * Song typedefinition
+ * @date 5/7/2023 - 2:00:19 PM
+ * 
+ * @typedef Song
+ * @type {object}
+ * @property {string} notes - the notes of the song
+ * @property {string} notation - notation used for the song
+ * @property {string} performer - the name of the one playing this song
+ * @property {string} [author] - optional name of the author in case of saved song
+ * @property {string} [title] - optional title of the song in case of a saved song
+ */
+
+/**
+ * Playback typedefinition
+ * @date 5/7/2023 - 2:00:19 PM
+ * 
+ * @typedef Playback
+ * @type {object}
+ * @property {object} cmd - the command to execute
+ * @property {number} time - the time when it should be executed
+ * @property {any[]} args - the arguments for the command
+ */
+
+// ====================================================== //
+// ==================== global state ==================== //
+// ====================================================== //
 var bpm = {};
 bpm.user = {};
 var queue = [];
 var bongoEnabled = true;
 var playing = false;
 setBPM(128);
+var githubUrl = "https://raw.githubusercontent.com/awsdcrafting/twitch-bongocat/rewrite/songs/";
 
-var githubUrl = "https://raw.githubusercontent.com/awsdcrafting/twitch-bongocat/rewrite/songs/"
+// ====================================================== //
+// ================== notation handlers ================= //
+// ====================================================== //
 
-function setBPM(targetBPM, username) {
-  if (targetBPM > 800 || targetBPM < 50) {
+var notations = {};
+notations["bongo"] = parseSongBongo;
+notations["legacy"] = parseSongBongo;
+notations["bongo+"] = parseSongBongo;
+
+
+// ====================================================== //
+// =================== helper methods =================== //
+// ====================================================== //
+function setBPM(targetBPM, username)
+{
+  if (targetBPM > 800 || targetBPM < 50)
+  {
     return;
   }
-  if (username === undefined) {
+  if (username === undefined)
+  {
     console.log("<Global> current BPM: " + bpm.global + ". Target: " + Math.floor(60000 / targetBPM));
     bpm.global = Math.floor(60000 / targetBPM);
-  } else {
-    console.log("<User> current BPM for "+username+": " + bpm.user[username] + ". Target: " + Math.floor(60000 / targetBPM));
+  } else
+  {
+    console.log("<User> current BPM for " + username + ": " + bpm.user[username] + ". Target: " + Math.floor(60000 / targetBPM));
     bpm.user[username] = Math.floor(60000 / targetBPM);
   }
 }
 
-
-
-// ====================================================== //
-// TODO: rewrite into notation                            //
-// ====================================================== //
-
-async function playFromGithub(song, user) {
-  console.log("Playing ", song, " from github for ", user)
-  const response = await fetch(encodeUri(githubUrl + song))
-  console.log(response)
-  const jsonData = await response.json()
-  console.log(jsonData)
-  addToQueue(jsonData.notes, user, false)
-}
-
-
-// ====================================================== //
-// begin move to own file and rewrite to own notation
-// ====================================================== //
-
-function playSound(cmd) {
-
-  const audio = document.querySelector(`audio[data-key="${cmd}"]`);
-  setInstrument(audio.dataset.instrument);
-  setPaw(audio.dataset.paw);
-  if (!audio) return;
-
-
-  audio.currentTime = 0;
-  audio.play();
-}
-function addToQueue(noteString, username, isLegacyNotation) {
-  var newNoteStack = [];
-  newNoteStack[0] = noteString;
-  newNoteStack[1] = username;
-  newNoteStack[2] = isLegacyNotation;
-  queue.push(newNoteStack);
-}
-
-function getFromQueue() {
-  var returnvalue = queue.pop();
-  return returnvalue;
-}
-function startQueue() {
-  setInterval(checkQueue, 1000);
-}
-function checkQueue() {
-  if (queue.length > 0 && playing == false) {
-    var song = getFromQueue();
-    var noteString = song[0]
-    var username = song[1];
-    var isLegacyNotation = song[2];
-
-    introAnimation(username);
-    addNotes(noteString, isLegacyNotation, username);
-  }
-
-}
-function parseNotes(noteBatch) {
-  const fsmError = 0;
-  const fsmStart = 1;
-  const fsmPitch = 2;
-  const fsmNote = 3;
-  const fsmSharp = 4;
-
-  var resultNotes = [];
-  var thisNote;
-  var state = fsmStart;
-
-  for (var i = 0; i < noteBatch.length; i++) {
-    var curChar = noteBatch[i];
-
-    switch (state) {
-      case fsmError: {
-        console.log("fsmError");
-
-        break;
-      }
-
-      case fsmStart: {
-        console.log("fsmStart");
-
-        thisNote = curChar;
-
-        if (curChar == "^" || curChar == "V")
-          state = fsmPitch;
-        else
-          state = fsmNote;
-        break;
-      }
-
-      case fsmPitch: {
-        console.log("fsmPitch");
-
-        if (curChar == "^" || curChar == "V" || curChar == "#")
-          state = fsmError;
-        else {
-          thisNote += curChar;
-          state = fsmNote;
-        }
-
-        break;
-      }
-
-      case fsmNote: {
-        console.log("fsmNote");
-
-        if (curChar == "#") {
-          thisNote += curChar;
-          state = fsmSharp;
-        }
-        else {
-          resultNotes.push(thisNote);
-          state = fsmStart;
-          i--;
-        }
-
-        break;
-      }
-
-      case fsmSharp: {
-        console.log("fsmSharp");
-
-        if (curChar == "#")
-          state = fsmError;
-        else {
-          resultNotes.push(thisNote);
-          state = fsmStart;
-          i--;
-        }
-
-        break;
-      }
-    }
-  }
-
-  // epsilon:
-  switch (state) {
-    case fsmNote:
-    case fsmSharp: {
-      console.log("epsilon");
-      resultNotes.push(thisNote);
-      break;
-    }
-  }
-
-  return resultNotes;
-}
-function getBpm(username) {
-  if (username === undefined || bpm.user[username] === undefined) {
+function getBPM(username)
+{
+  if (username === undefined || bpm.user[username] === undefined)
+  {
     return bpm.global;
-  } else {
+  } else
+  {
     return bpm.user[username];
   }
 }
 
-function addNotes(noteString, isLegacyNotation, username) {
-  var noteBatches = noteString.split(" ");
-  var thisNote;
-  var thisTimer = 1000;
-  var uBPM;
-  uBPM = getBpm(username);
-
-  for (var noteBatch in noteBatches) {
-    var notes = parseNotes(noteBatches[noteBatch].substr(0, 5));
-    if (notes.length > 0 && notes[0] == ",") {
-      let sBpm = "";
-      for (var i = 1; i <= notes.length; i++) {
-        if (isNaN(notes[i])) {
-          break;
-        }
-        sBpm += notes[i];
-      }
-      sBpm = sBpm.substring(0, 3);
-      setBPM(Number(sBpm), username);
-      uBPM = getBpm(username);
-      continue
+function playSound(cmd)
+{
+  const audio = document.querySelector(`audio[data-key="${cmd}"]`);
+  if (!audio)
+  {
+    if (cmd != ".")
+    {
+      console.error("No audio for ", cmd);
     }
-
-    console.log(`result notes: ${notes}`);
-
-    thisTimer += uBPM;
-    for (var noteIdx in notes) {
-      thisNote = notes[noteIdx];
-
-      if (isLegacyNotation)
-        thisNote += "L";
-
-      setTimeout(playSound, thisTimer, thisNote);
-    }
+    return;
   }
-  thisTimer += uBPM;
-  setTimeout(outroAnimation, thisTimer);
+  setPaw(audio.dataset.paw);
+  setInstrument(audio.dataset.instrument);
+
+  audio.currentTime = 0;
+  audio.play();
 }
-function introAnimation(username) {
-  document.getElementById("nametag").innerHTML = username + " entered the stage";
+
+function introAnimation(song)
+{
+  let username = song.performer;
+  if (!song.author || song.performer == song.author)
+  {
+    document.getElementById("nametag").innerHTML = username + " entered the stage";
+  }
+  else
+  {
+    document.getElementById("nametag").innerHTML = username + " performs " + song.title + " by " + song.author;
+  }
   document.getElementById("bongocat").style.left = "0px";
   playing = true;
 }
-function outroAnimation() {
+function outroAnimation()
+{
   document.getElementById("bongocat").style.left = "-1920px";
   setInstrument("none");
-  setTimeout(function () {
+  setTimeout(function ()
+  {
     playing = false;
   }, 1000);
 }
-function setInstrument(instrument) {
+function setInstrument(instrument)
+{
   var c = document.getElementById("instruments").children;
-  for (var i = 0; i < c.length; i++) {
+  for (var i = 0; i < c.length; i++)
+  {
     c[i].style.visibility = "hidden";
   }
   var newInstrument = document.getElementById(instrument);
-  if (!newInstrument) { return; }
+  if (!newInstrument) {return;}
   newInstrument.style.visibility = "visible";
 
 }
-function setPaw(paw) {
+function setPaw(paw)
+{
   var currentPaw = document.getElementById(paw);
   currentPaw.style.backgroundPosition = "top right";
   window.setTimeout(releasePaw, bpm / 2, paw);
 }
-function releasePaw(paw) {
+function releasePaw(paw)
+{
 
   var currentPaw = document.getElementById(paw);
   currentPaw.style.backgroundPosition = "top left";
 }
 
+var helperMethods = {setBPM, getBPM, playSound, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw};
+for (const key in helperMethods)
+{
+  window[key] = helperMethods[key];
+}
+window.helperMethods = helperMethods;
+console.log(helperMethods);
+
+
 // ====================================================== //
-// end move to own file
+// ================== queue management ================== //
 // ====================================================== //
+
+/**
+ * Adds a song to the queue
+ * @date 5/7/2023 - 2:01:20 PM
+ *
+ * @param {Song} song
+ */
+function addToQueue(song)
+{
+  queue.push(song);
+}
+
+/**
+ * Returns the oldest song in the queue 
+ * @returns {Song}
+ */
+function getFromQueue()
+{
+  var returnvalue = queue.pop();
+  return returnvalue;
+}
+
+/**
+ * Sets the interval for the checkQueue function
+ * once per second
+ * @date 5/7/2023 - 2:10:23 PM
+ */
+function startQueue()
+{
+  setInterval(checkQueue, 1000);
+}
+
+
+/**
+ * Checks for new songs in the queue
+ * In case of a new song and no currently playing song the next song is retrieved from the queue
+ * This song is then parsed by the handler defined for the used notation
+ * then its played back
+ * @date 5/7/2023 - 2:10:56 PM
+ */
+function checkQueue()
+{
+  if (queue.length > 0 && playing == false)
+  {
+    var song = getFromQueue();
+    song.notes = song.notes.toUpperCase();
+
+    introAnimation(song);
+    let handler = notations[song.notation];
+    if (handler)
+    {
+      let playbacks = handler(song);
+      console.log(playbacks);
+      for (let playback of playbacks)
+      {
+        setTimeout(playback.cmd, playback.time, playback.args);
+      }
+    }
+    //addNotes(noteString, isLegacyNotation, username);
+  }
+}
+
+
+// ====================================================== //
+// ===================== remote play ==================== //
+// ====================================================== //
+
+async function playFromGithub(song, user)
+{
+  console.log("Playing", song, "from github for", user);
+  const response = await fetch(encodeURI(githubUrl + song));
+  if (response.status != 200)
+  {
+    return;
+  }
+  //console.log(response)
+  const jsonData = await response.json();
+  console.log(jsonData);
+  jsonData.performer = user;
+  addToQueue(jsonData);
+}
+
 
 
 // ====================================================== //
@@ -259,85 +247,105 @@ function releasePaw(paw) {
 // ====================================================== //
 
 const commands = {};
-function enableBongo(args) {
-  if (isSuperUser(args.tags)) {
+function enableBongo(args)
+{
+  if (isSuperUser(args.tags))
+  {
     console.log("aktiviere Bongo");
-    bongoEnabled = true
+    bongoEnabled = true;
   }
 }
 commands["!enablebongo"] = enableBongo;
 
-function disableBongo(args) {
-  if (isSuperUser(args.tags)) {
+function disableBongo(args)
+{
+  if (isSuperUser(args.tags))
+  {
     console.log("deaktiviere Bongo");
     bongoEnabled = false;
   }
 }
-commands["!disablebongo"] = disableBongo
+commands["!disablebongo"] = disableBongo;
 
-function bongoPlus(args) {
-  if (!bongoEnabled) {
-    return
+function bongoPlus(args)
+{
+  if (!bongoEnabled)
+  {
+    return;
   }
   //const notes = args.message.substr(8);
-  console.log(args)
-  const notes = args.arg
+  console.log(args);
+  const notes = args.arg;
   console.log(`${args.tags.username} plays+ ${notes}.`);
-  addToQueue(notes.toUpperCase(), args.tags.username, false);
+  let song = {performer: args.tags.username, notes: notes, notation: "bongo+"};
+  addToQueue(song);
 }
-commands["!bongo+"] = bongoPlus
+commands["!bongo+"] = bongoPlus;
 
-function bongo(args) {
-  if (!bongoEnabled) {
-    return
+function bongo(args)
+{
+  if (!bongoEnabled)
+  {
+    return;
   }
   //const notes = message.substr(7);
-  const notes = args.arg
+  const notes = args.arg;
   console.log(`${args.tags.username} plays ${notes}.`);
-  addToQueue(notes.toUpperCase(), args.tags.username, true);
+  let song = {performer: args.tags.username, notes: notes, notation: "bongo"};
+  addToQueue(song);
 }
-commands["!bongo"] = bongo
+commands["!bongo"] = bongo;
 
-function changeBpm(args) {
-  if (!bongoEnabled) {
-    return
+function changeBpm(args)
+{
+  if (!bongoEnabled)
+  {
+    return;
   }
   //const targetBPM = Number(message.substr(5));
-  const targetBPM = Number(args.arg)
+  const targetBPM = Number(args.arg);
   //if (targetBPM <= 600 && targetBPM > 49)
   //{
   console.log(`${args.tags.username} set BPM to ${targetBPM}.`);
   setBPM(targetBPM, args.tags.username);
   //}
 }
-commands["!bpm"] = changeBpm
+commands["!bpm"] = changeBpm;
 
-function bongoPlay(args) {
-  if (!bongoEnabled) {
-    return
+function bongoPlay(args)
+{
+  if (!bongoEnabled)
+  {
+    return;
   }
 
-  if (!args.arg.endsWith(".json")) {
-    args.arg += ".json"
+  if (!args.arg.endsWith(".json"))
+  {
+    args.arg += ".json";
   }
 
-  playFromGithub(args.arg, args.tags.username)
+  playFromGithub(args.arg, args.tags.username);
 
 }
-commands["!bongoplay"] = bongoPlay
+commands["!bongoplay"] = bongoPlay;
 
-function handleCommand(message, command, arg, tags) {
+function handleCommand(message, command, arg, tags)
+{
 
-  let longestCmd = ""
-  for (let cmd in commands) {
-    if (message.startsWith(cmd)) {
-      if (cmd.length > longestCmd.length) {
-        longestCmd = cmd
+  let longestCmd = "";
+  for (let cmd in commands)
+  {
+    if (message.startsWith(cmd))
+    {
+      if (cmd.length > longestCmd.length)
+      {
+        longestCmd = cmd;
       }
     }
   }
-  if (longestCmd) {
-    commands[longestCmd]?.({message: message, command: command, arg: arg, tags: tags})
+  if (longestCmd)
+  {
+    commands[longestCmd]?.({message: message, command: command, arg: arg, tags: tags});
   }
   /*
   let handler = commands[command]
@@ -370,12 +378,12 @@ chatClient.on('message', (channel, tags, message, self) =>
 
   if (message.startsWith("!"))
   {
-    let args = message.split(/\s+/)
-    let cmd = args[0]
-    args = args.splice(1)
-    let arg = args.join(" ")
-    console.log(cmd, arg)
-    handleCommand(message, cmd, arg, tags)
+    let args = message.split(/\s+/);
+    let cmd = args[0];
+    args = args.splice(1);
+    let arg = args.join(" ");
+    console.log(cmd, arg);
+    handleCommand(message, cmd, arg, tags);
   }
 });
 
