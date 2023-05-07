@@ -7,6 +7,8 @@ var bongoEnabled = true;
 var playing = false;
 setBPM(128);
 
+var githubUrl = "https://raw.githubusercontent.com/awsdcrafting/twitch-bongocat/rewrite/songs/"
+
 function setBPM(targetBPM, username) {
   if (targetBPM > 800 || targetBPM < 50) {
     return;
@@ -20,8 +22,24 @@ function setBPM(targetBPM, username) {
   }
 }
 
+
+
 // ====================================================== //
-// begin move to own file
+// TODO: rewrite into notation                            //
+// ====================================================== //
+
+async function playFromGithub(song, user) {
+  console.log("Playing ", song, " from github for ", user)
+  const response = await fetch(encodeUri(githubUrl + song))
+  console.log(response)
+  const jsonData = await response.json()
+  console.log(jsonData)
+  addToQueue(jsonData.notes, user, false)
+}
+
+
+// ====================================================== //
+// begin move to own file and rewrite to own notation
 // ====================================================== //
 
 function playSound(cmd) {
@@ -235,6 +253,11 @@ function releasePaw(paw) {
 // end move to own file
 // ====================================================== //
 
+
+// ====================================================== //
+// ====================== commands ====================== //
+// ====================================================== //
+
 const commands = {};
 function enableBongo(args) {
   if (isSuperUser(args.tags)) {
@@ -289,6 +312,20 @@ function changeBpm(args) {
 }
 commands["!bpm"] = changeBpm
 
+function bongoPlay(args) {
+  if (!bongoEnabled) {
+    return
+  }
+
+  if (!args.arg.endsWith(".json")) {
+    args.arg += ".json"
+  }
+
+  playFromGithub(args.arg, args.tags.username)
+
+}
+commands["!bongoplay"] = bongoPlay
+
 function handleCommand(message, command, arg, tags) {
 
   let longestCmd = ""
@@ -311,7 +348,9 @@ function handleCommand(message, command, arg, tags) {
 }
 
 
-// tmijs
+// ====================================================== //
+// ======================== tmijs ======================= //
+// ====================================================== //
 const channel = location.hash || 'jvpeek';
 const chatClient = new tmi.Client({
   channels: [channel]
