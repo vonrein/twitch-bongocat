@@ -37,7 +37,7 @@ var queue = [];
 var bongoEnabled = true;
 var playing = false;
 setBPM(128);
-var githubUrl = "https://raw.githubusercontent.com/awsdcrafting/twitch-bongocat/rewrite/songs/";
+var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/";
 
 // ====================================================== //
 // ================== notation handlers ================= //
