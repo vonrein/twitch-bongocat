@@ -10,7 +10,7 @@
  */
 function parseSong(song) {
   console.log(song)
-  return addNotes(song.notes, song.notation == "bongo" || song.notation == "legacy", song.username)
+  return addNotes(song.notes, song.notation == "bongo" || song.notation == "legacy", song.performer)
 }
 
 function addNotes(noteString, isLegacyNotation, username) {
