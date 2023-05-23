@@ -23,7 +23,7 @@ function addNotes(noteString, isLegacyNotation, username) {
   uBPM = getBPM(username);
 
   for (var noteBatch in noteBatches) {
-    var notes = parseNotes(noteBatches[noteBatch].substr(0, 5));
+    var notes = parseNotes(noteBatches[noteBatch]).slice(0, maxNotesPerBatch);
     if (notes.length > 0 && notes[0] == ",") {
       let sBpm = "";
       for (var i = 1; i <= notes.length; i++) {
