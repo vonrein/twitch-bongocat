@@ -39,11 +39,13 @@ var playing = false;
 setBPM(128);
 var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/";
 
+window.maxNotesPerBatch = 5;
+
 // ====================================================== //
 // ================== notation handlers ================= //
 // ====================================================== //
-
 var notations = {};
+
 notations["bongo"] = parseSongBongo;
 notations["legacy"] = parseSongBongo;
 notations["bongo+"] = parseSongBongo;
@@ -224,7 +226,6 @@ function checkQueue()
 // ====================================================== //
 // ===================== remote play ==================== //
 // ====================================================== //
-
 async function playFromGithub(song, user)
 {
   console.log("Playing", song, "from github for", user);
@@ -245,8 +246,8 @@ async function playFromGithub(song, user)
 // ====================================================== //
 // ====================== commands ====================== //
 // ====================================================== //
-
 const commands = {};
+
 function enableBongo(args)
 {
   if (isSuperUser(args.tags))
@@ -357,9 +358,20 @@ function handleCommand(message, command, arg, tags)
 
 
 // ====================================================== //
+// ======================= config ======================= //
+// ====================================================== //
+let params = new URLSearchParams(document.location.search);
+
+let maxNotesPerBatch = params.get("maxNotesPerBatch");
+if (maxNotesPerBatch && Number(maxNotesPerBatch))
+{
+  window.maxNotesPerBatch = Number(maxNotesPerBatch);
+}
+
+// ====================================================== //
 // ======================== tmijs ======================= //
 // ====================================================== //
-const channel = location.hash || 'jvpeek';
+const channel = location.hash || params.get("channel") || 'jvpeek';
 const chatClient = new tmi.Client({
   channels: [channel]
 });
