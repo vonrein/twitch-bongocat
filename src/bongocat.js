@@ -31,6 +31,9 @@ import {parseSong as parseSongBongo} from "./modules/bongo.js";
 // ====================================================== //
 // ==================== global state ==================== //
 // ====================================================== //
+var maxBpm = 800;
+var minBpm = 50;
+
 var bpm = {};
 bpm.user = {};
 var queue = [];
@@ -56,13 +59,18 @@ notations["bongo+"] = parseSongBongo;
 // ====================================================== //
 function setBPM(targetBPM, username)
 {
+
   targetBPM = Number(targetBPM)
   if (isNaN(targetBPM)) {
     return
   }
-  if (targetBPM > 800 || targetBPM < 50)
+  if (targetBPM < minBpm)
   {
-    return;
+    targetBPM = minBpm;
+  }
+  if (targetBPM > maxBpm)
+  {
+    targetBPM = maxBpm;
   }
   if (username === undefined)
   {
@@ -370,6 +378,16 @@ let maxNotesPerBatch = params.get("maxNotesPerBatch");
 if (maxNotesPerBatch && Number(maxNotesPerBatch))
 {
   window.maxNotesPerBatch = Number(maxNotesPerBatch);
+}
+let maxPbmParam = params.get("maxBpm");
+if (maxPbmParam && Number(maxPbmParam))
+{
+  maxBpm = Number(maxPbmParam);
+}
+let minPbmParam = params.get("minBpm");
+if (minPbmParam && Number(minPbmParam))
+{
+  minBpm = Number(minPbmParam);
 }
 
 // ====================================================== //
