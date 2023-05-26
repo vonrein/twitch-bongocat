@@ -56,6 +56,10 @@ notations["bongo+"] = parseSongBongo;
 // ====================================================== //
 function setBPM(targetBPM, username)
 {
+  targetBPM = Number(targetBPM)
+  if (isNaN(targetBPM)) {
+    return
+  }
   if (targetBPM > 800 || targetBPM < 50)
   {
     return;
