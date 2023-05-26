@@ -48,12 +48,12 @@ function addNotes(noteString, isLegacyNotation, username) {
         thisNote += "L";
 
       //setTimeout(playSound, thisTimer, thisNote);
-      result.push({time: thisTimer, cmd: playSound, args: thisNote})
+      result.push(preparePlaybackObject(playSound, thisTimer, thisNote, uBPM))
     }
   }
   thisTimer += uBPM;
   //setTimeout(outroAnimation, thisTimer);
-  result.push({time: thisTimer, cmd: outroAnimation})
+  result.push(preparePlaybackObject(outroAnimation, thisTimer))
   return result
 }
 

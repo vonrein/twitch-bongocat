@@ -94,7 +94,7 @@ function getBPM(username)
   }
 }
 
-function playSound(cmd)
+function playSound(cmd, cBpm)
 {
   const audio = document.querySelector(`audio[data-key="${cmd}"]`);
   if (!audio)
@@ -105,7 +105,7 @@ function playSound(cmd)
     }
     return;
   }
-  setPaw(audio.dataset.paw);
+  setPaw(audio.dataset.paw, cBpm);
   setInstrument(audio.dataset.instrument);
 
   audio.currentTime = 0;
@@ -147,11 +147,11 @@ function setInstrument(instrument)
   newInstrument.style.visibility = "visible";
 
 }
-function setPaw(paw)
+function setPaw(paw, cBpm)
 {
   var currentPaw = document.getElementById(paw);
   currentPaw.style.backgroundPosition = "top right";
-  window.setTimeout(releasePaw, bpm / 2, paw);
+  window.setTimeout(releasePaw, cBpm / 2, paw);
 }
 function releasePaw(paw)
 {
@@ -160,7 +160,11 @@ function releasePaw(paw)
   currentPaw.style.backgroundPosition = "top left";
 }
 
-var helperMethods = {setBPM, getBPM, playSound, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw};
+function preparePlaybackObject(cmd, time, ...args) {
+  return {time: time, cmd: cmd, args: args}
+}
+
+var helperMethods = {setBPM, getBPM, playSound, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
 for (const key in helperMethods)
 {
   window[key] = helperMethods[key];
@@ -227,7 +231,7 @@ function checkQueue()
       console.log(playbacks);
       for (let playback of playbacks)
       {
-        setTimeout(playback.cmd, playback.time, playback.args);
+        setTimeout(playback.cmd, playback.time, ...playback.args);
       }
     }
     //addNotes(noteString, isLegacyNotation, username);
