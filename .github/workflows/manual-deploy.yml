@@ -28,6 +28,7 @@ jobs:
         username: ${{ secrets.FTPUSER }}
         # ftp password
         password: ${{ secrets.FTPPASS }}
+        local-dir: ./src/
         # protocol to deploy with - ftp, ftps, or ftps-legacy
         protocol: ftps # optional
         # Prints which modifications will be made with current config options, but doesnt actually make any changes
