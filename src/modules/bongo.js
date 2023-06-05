@@ -10,10 +10,11 @@
  */
 function parseSong(song) {
   console.log(song)
-  return addNotes(song.notes, song.notation == "bongo" || song.notation == "legacy", song.performer)
+  return addNotes(song.notes, song.notation == "bongol" || song.notation == "legacy", song.performer)
 }
 
 function addNotes(noteString, isLegacyNotation, username) {
+  console.log("leagcy:", isLegacyNotation)
   let result = []
 
   noteString = noteString.toUpperCase().replaceAll("Z", "Y")
