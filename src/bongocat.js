@@ -221,7 +221,6 @@ function checkQueue()
   if (queue.length > 0 && playing == false)
   {
     var song = getFromQueue();
-    song.notes = song.notes.toUpperCase();
 
     introAnimation(song);
     let handler = notations[song.notation];
