@@ -16,7 +16,7 @@ function parseSong(song) {
 function addNotes(noteString, isLegacyNotation, username) {
   let result = []
 
-  noteString = noteString.toUpperCase().replace("Z", "Y")
+  noteString = noteString.toUpperCase().replaceAll("Z", "Y")
 
   var noteBatches = noteString.split(" ");
   var thisNote;
