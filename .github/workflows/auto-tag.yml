@@ -19,5 +19,6 @@ jobs:
       id: "tag_create"
       with:
         tag: ${{ format('v{0}', github.run_number) }}
-    - name: Release
-      uses: ./.github/workflows/release.yml
+  release:
+    needs: create_tag
+    uses: ./.github/workflows/release.yml
