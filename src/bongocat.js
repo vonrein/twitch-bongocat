@@ -15,6 +15,7 @@ import {parseSong as parseSongBongo} from "./modules/bongo.js";
  * @property {string} performer - the name of the one playing this song
  * @property {string} [author] - optional name of the author in case of saved song
  * @property {string} [title] - optional title of the song in case of a saved song
+ * @property {string[]} [dedications] - optional dedications of the song
  */
 
 /**
@@ -124,6 +125,17 @@ function introAnimation(song)
   {
     document.getElementById("nametag").innerHTML = username + " performs " + song.title + " by " + song.author;
   }
+
+  if (song.dedications) {
+    song.dedications = song.dedications.filter((dedication, index) => {
+      return song.dedications.indexOf(dedication) === index;
+    });
+
+    document.getElementById("dedications").innerHTML = "This song is dedicated to " + song.dedications.join(", ")
+  }else{
+    document.getElementById("dedications").innerHTML = ""
+  }
+
   document.getElementById("bongocat").style.left = "0px";
   playing = true;
 }
@@ -244,8 +256,18 @@ function checkQueue()
 // ====================================================== //
 async function playFromGithub(song, user)
 {
+  const userRegex = /@\w+/g;
+  let dedications = song.match(userRegex).map(s => s.replace("@", ""))
+  song = song.replace(userRegex, "") //remove usernames from string
+  song = song.trim().replace(/\s+/, "_") //remove whitespaces
+
+  if (!song.endsWith(".json"))
+  {
+    song += ".json";
+  }
+
   console.log("Playing", song, "from github for", user);
-  const response = await fetch(encodeURI(githubUrl + song));
+  const response = await fetch(encodeURI(githubUrl + song.trim()));
   if (response.status != 200)
   {
     return;
@@ -254,6 +276,7 @@ async function playFromGithub(song, user)
   const jsonData = await response.json();
   console.log(jsonData);
   jsonData.performer = user;
+  jsonData.dedications = dedications;
   addToQueue(jsonData);
 }
 
@@ -335,11 +358,6 @@ function bongoPlay(args)
   if (!bongoEnabled)
   {
     return;
-  }
-
-  if (!args.arg.endsWith(".json"))
-  {
-    args.arg += ".json";
   }
 
   playFromGithub(args.arg, args.tags.username);
