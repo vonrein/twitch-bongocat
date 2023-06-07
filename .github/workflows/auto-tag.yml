@@ -19,7 +19,7 @@ jobs:
       id: "tag_create"
       with:
         tag: ${{ format('v{0}', github.run_number) }}
-  release:
-    needs: create_tag
-    uses: ./.github/workflows/release.yml
-    secrets: inherit
+  #release:
+  #  needs: create_tag
+  #  uses: ./.github/workflows/release.yml
+  #  secrets: inherit

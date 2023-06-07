@@ -3,7 +3,8 @@ name: Release
 on:
   push:
     tags:
-      - "v**"
+      - 'v**'
+  create:
   workflow_call:
 
   
@@ -11,6 +12,7 @@ on:
 jobs:
   # This workflow contains a single job called "deploy"
   release:
+    if: ${{ github.ref_type == 'tag' }}
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
