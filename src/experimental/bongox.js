@@ -3,7 +3,7 @@ experimentalFeatures = {}
 
 
 
-function rttl() {
+function rttl(args) {
 
 }
 experimentalFeatures["rttl"] = rttl
