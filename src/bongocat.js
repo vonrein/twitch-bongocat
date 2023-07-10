@@ -272,13 +272,10 @@ async function playFromGithub(song, user)
 {
   const userRegex = /@\w+/g;
   let dedications = song.match(userRegex)?.map(s => s.replace("@", ""));
-  song = song.replace(userRegex, ""); //remove usernames from string
-  song = song.trim().replace(/\s+/, "_"); //remove whitespaces
+  song = song.replaceAll(userRegex, ""); //remove usernames from string
+  song = song.trim().replaceAll(/\s+/g, "_").replace(/\.json$/, "").replaceAll(".", ""); //remove whitespaces, remove dots
 
-  if (!song.endsWith(".json"))
-  {
-    song += ".json";
-  }
+  song += ".json";
 
   console.log("Playing", song, "from github for", user);
   const response = await fetch(encodeURI(githubUrl + song.trim()));
