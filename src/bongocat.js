@@ -43,6 +43,7 @@ var playing = false;
 setBPM(128);
 var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/";
 var stackMode = false;
+var defaultNotation = "bongo"
 
 window.maxNotesPerBatch = 5;
 
@@ -204,6 +205,18 @@ console.log(helperMethods);
  */
 function addToQueue(song)
 {
+  //pre check for valid song
+  if (!song.notes) {
+    return;
+  }
+
+  if (!song.notation) {
+    song.notation = defaultNotation
+  }
+  if (!song.performer) {
+    song.performer = "anonymous"
+  }
+
   queue.push(song);
 }
 
@@ -318,6 +331,19 @@ function disableBongo(args)
 }
 commands["!disablebongo"] = disableBongo;
 
+function bongoDefault(args) {
+  if (!bongoEnabled)
+  {
+    return;
+  }
+  //const notes = args.message.substr(8);
+  console.log(args);
+  const notes = args.arg;
+  console.log(`${args.tags.username} plays ${notes}. with ${defaultNotation}`);
+  let song = {performer: args.tags.username, notes: notes, notation: defaultNotation};
+  addToQueue(song);
+}
+
 function bongoPlus(args)
 {
   if (!bongoEnabled)
@@ -331,7 +357,7 @@ function bongoPlus(args)
   let song = {performer: args.tags.username, notes: notes, notation: "bongo"};
   addToQueue(song);
 }
-commands["!bongo"] = bongoPlus;
+commands["!bongo"] = bongoDefault;
 commands["!bongo+"] = bongoPlus;
 
 function bongo(args)
