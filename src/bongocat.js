@@ -43,7 +43,7 @@ var playing = false;
 setBPM(128);
 var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/";
 var stackMode = false;
-var defaultNotation = "bongo"
+var defaultNotation = "bongo";
 
 window.maxNotesPerBatch = 5;
 
@@ -206,15 +206,18 @@ console.log(helperMethods);
 function addToQueue(song)
 {
   //pre check for valid song
-  if (!song.notes) {
+  if (!song.notes)
+  {
     return;
   }
 
-  if (!song.notation) {
-    song.notation = defaultNotation
+  if (!song.notation)
+  {
+    song.notation = defaultNotation;
   }
-  if (!song.performer) {
-    song.performer = "anonymous"
+  if (!song.performer)
+  {
+    song.performer = "anonymous";
   }
 
   queue.push(song);
@@ -307,7 +310,7 @@ async function playFromGithub(song, user)
 
 
 // ====================================================== //
-// ====================== commands ====================== //
+// ==================== mod commands; =================== //
 // ====================================================== //
 const commands = {};
 
@@ -331,7 +334,22 @@ function disableBongo(args)
 }
 commands["!disablebongo"] = disableBongo;
 
-function bongoDefault(args) {
+function clearQueue()
+{
+  if (isSuperUser(args.tags))
+  {
+    queue = [];
+  }
+}
+
+commands["!bongoclear"] = clearQueue
+
+// ====================================================== //
+// ==================== user commands =================== //
+// ====================================================== //
+
+function bongoDefault(args)
+{
   if (!bongoEnabled)
   {
     return;
