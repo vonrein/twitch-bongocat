@@ -423,10 +423,11 @@ commands["!bongoplay"] = bongoPlay;
 function handleCommand(message, command, arg, tags)
 {
 
+  let msg = message.toLowerCase()
   let longestCmd = "";
   for (let cmd in commands)
   {
-    if (message.startsWith(cmd))
+    if (msg.startsWith(cmd))
     {
       if (cmd.length > longestCmd.length)
       {
