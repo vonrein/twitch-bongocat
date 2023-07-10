@@ -42,6 +42,10 @@ var bongoEnabled = true;
 var playing = false;
 setBPM(128);
 var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/";
+var stackMode = false;
+var defaultNotation = "bongo";
+
+var currentSong = null;
 
 window.maxNotesPerBatch = 5;
 
@@ -62,9 +66,10 @@ notations["bongo+"] = parseSongBongo;
 function setBPM(targetBPM, username)
 {
 
-  targetBPM = Number(targetBPM)
-  if (isNaN(targetBPM)) {
-    return
+  targetBPM = Number(targetBPM);
+  if (isNaN(targetBPM))
+  {
+    return;
   }
   if (targetBPM < minBpm)
   {
@@ -126,14 +131,17 @@ function introAnimation(song)
     document.getElementById("nametag").innerHTML = username + " performs " + song.title + " by " + song.author;
   }
 
-  if (song.dedications) {
-    song.dedications = song.dedications.filter((dedication, index) => {
+  if (song.dedications)
+  {
+    song.dedications = song.dedications.filter((dedication, index) =>
+    {
       return song.dedications.indexOf(dedication) === index;
     });
 
-    document.getElementById("dedications").innerHTML = "This song is dedicated to " + song.dedications.join(", ")
-  }else{
-    document.getElementById("dedications").innerHTML = ""
+    document.getElementById("dedications").innerHTML = "This song is dedicated to " + song.dedications.join(", ");
+  } else
+  {
+    document.getElementById("dedications").innerHTML = "";
   }
 
   document.getElementById("bongocat").style.left = "0px";
@@ -146,6 +154,7 @@ function outroAnimation()
   setTimeout(function ()
   {
     playing = false;
+    currentSong = null;
   }, 1000);
 }
 function setInstrument(instrument)
@@ -173,8 +182,9 @@ function releasePaw(paw)
   currentPaw.style.backgroundPosition = "top left";
 }
 
-function preparePlaybackObject(cmd, time, ...args) {
-  return {time: time, cmd: cmd, args: args}
+function preparePlaybackObject(cmd, time, ...args)
+{
+  return {time: time, cmd: cmd, args: args};
 }
 
 var helperMethods = {setBPM, getBPM, playSound, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
@@ -198,6 +208,21 @@ console.log(helperMethods);
  */
 function addToQueue(song)
 {
+  //pre check for valid song
+  if (!song.notes)
+  {
+    return;
+  }
+
+  if (!song.notation)
+  {
+    song.notation = defaultNotation;
+  }
+  if (!song.performer)
+  {
+    song.performer = "anonymous";
+  }
+
   queue.push(song);
 }
 
@@ -207,7 +232,15 @@ function addToQueue(song)
  */
 function getFromQueue()
 {
-  var returnvalue = queue.pop();
+
+  var returnvalue;
+  if (stackMode)
+  {
+    returnvalue = queue.pop();
+  } else
+  {
+    returnvalue = queue.shift();
+  }
   return returnvalue;
 }
 
@@ -234,16 +267,17 @@ function checkQueue()
   if (queue.length > 0 && playing == false)
   {
     var song = getFromQueue();
-
-    introAnimation(song);
     let handler = notations[song.notation];
     if (handler)
     {
+      currentSong = song;
+      currentSong.timeoutIDs = [];
+      introAnimation(song);
       let playbacks = handler(song);
       console.log(playbacks);
       for (let playback of playbacks)
       {
-        setTimeout(playback.cmd, playback.time, ...playback.args);
+        currentSong.timeoutIDs.push(setTimeout(playback.cmd, playback.time, ...playback.args));
       }
     }
     //addNotes(noteString, isLegacyNotation, username);
@@ -257,14 +291,11 @@ function checkQueue()
 async function playFromGithub(song, user)
 {
   const userRegex = /@\w+/g;
-  let dedications = song.match(userRegex)?.map(s => s.replace("@", ""))
-  song = song.replace(userRegex, "") //remove usernames from string
-  song = song.trim().replace(/\s+/, "_") //remove whitespaces
+  let dedications = song.match(userRegex)?.map(s => s.replace("@", ""));
+  song = song.replaceAll(userRegex, ""); //remove usernames from string
+  song = song.trim().replaceAll(/\s+/g, "_").replace(/\.json$/, "").replaceAll(".", ""); //remove whitespaces, remove dots
 
-  if (!song.endsWith(".json"))
-  {
-    song += ".json";
-  }
+  song += ".json";
 
   console.log("Playing", song, "from github for", user);
   const response = await fetch(encodeURI(githubUrl + song.trim()));
@@ -283,7 +314,7 @@ async function playFromGithub(song, user)
 
 
 // ====================================================== //
-// ====================== commands ====================== //
+// ==================== mod commands; =================== //
 // ====================================================== //
 const commands = {};
 
@@ -307,6 +338,62 @@ function disableBongo(args)
 }
 commands["!disablebongo"] = disableBongo;
 
+function clearQueue(args)
+{
+  if (isSuperUser(args.tags))
+  {
+    queue = [];
+  }
+}
+
+commands["!bongoclear"] = clearQueue;
+
+function skipSong(args)
+{
+  if (!isSuperUser(args.tags))
+  {
+    return;
+  }
+  if (!currentSong)
+  {
+    return;
+  }
+
+  if (!currentSong.timeoutIDs)
+  {
+    return;
+  }
+
+  console.log(`${args.tags.username} cleared the current song ${currentSong}`)
+
+  for (let id of currentSong.timeoutIDs)
+  {
+    clearTimeout(id);
+  }
+
+  outroAnimation();
+}
+
+commands["!bongoskip"] = skipSong;
+
+// ====================================================== //
+// ==================== user commands =================== //
+// ====================================================== //
+
+function bongoDefault(args)
+{
+  if (!bongoEnabled)
+  {
+    return;
+  }
+  //const notes = args.message.substr(8);
+  console.log(args);
+  const notes = args.arg;
+  console.log(`${args.tags.username} plays ${notes}. with ${defaultNotation}`);
+  let song = {performer: args.tags.username, notes: notes, notation: defaultNotation};
+  addToQueue(song);
+}
+
 function bongoPlus(args)
 {
   if (!bongoEnabled)
@@ -320,7 +407,7 @@ function bongoPlus(args)
   let song = {performer: args.tags.username, notes: notes, notation: "bongo"};
   addToQueue(song);
 }
-commands["!bongo"] = bongoPlus;
+commands["!bongo"] = bongoDefault;
 commands["!bongo+"] = bongoPlus;
 
 function bongo(args)
@@ -368,14 +455,15 @@ commands["!bongoplay"] = bongoPlay;
 function handleCommand(message, command, arg, tags)
 {
 
+  let msg = message.toLowerCase();
   let longestCmd = "";
   for (let cmd in commands)
   {
-    if (message.startsWith(cmd))
+    if (msg.startsWith(cmd))
     {
       if (cmd.length > longestCmd.length)
       {
-        console.log(cmd, "beat", longestCmd)
+        console.log(cmd, "beat", longestCmd);
         longestCmd = cmd;
       }
     }
@@ -412,6 +500,11 @@ let minPbmParam = params.get("minBpm");
 if (minPbmParam && Number(minPbmParam))
 {
   minBpm = Number(minPbmParam);
+}
+
+if (params.get("stackMode"))
+{
+  stackMode = true;
 }
 
 // ====================================================== //
