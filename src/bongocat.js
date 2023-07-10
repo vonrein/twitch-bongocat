@@ -42,6 +42,7 @@ var bongoEnabled = true;
 var playing = false;
 setBPM(128);
 var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/";
+var stackMode = false;
 
 window.maxNotesPerBatch = 5;
 
@@ -62,9 +63,10 @@ notations["bongo+"] = parseSongBongo;
 function setBPM(targetBPM, username)
 {
 
-  targetBPM = Number(targetBPM)
-  if (isNaN(targetBPM)) {
-    return
+  targetBPM = Number(targetBPM);
+  if (isNaN(targetBPM))
+  {
+    return;
   }
   if (targetBPM < minBpm)
   {
@@ -126,14 +128,17 @@ function introAnimation(song)
     document.getElementById("nametag").innerHTML = username + " performs " + song.title + " by " + song.author;
   }
 
-  if (song.dedications) {
-    song.dedications = song.dedications.filter((dedication, index) => {
+  if (song.dedications)
+  {
+    song.dedications = song.dedications.filter((dedication, index) =>
+    {
       return song.dedications.indexOf(dedication) === index;
     });
 
-    document.getElementById("dedications").innerHTML = "This song is dedicated to " + song.dedications.join(", ")
-  }else{
-    document.getElementById("dedications").innerHTML = ""
+    document.getElementById("dedications").innerHTML = "This song is dedicated to " + song.dedications.join(", ");
+  } else
+  {
+    document.getElementById("dedications").innerHTML = "";
   }
 
   document.getElementById("bongocat").style.left = "0px";
@@ -173,8 +178,9 @@ function releasePaw(paw)
   currentPaw.style.backgroundPosition = "top left";
 }
 
-function preparePlaybackObject(cmd, time, ...args) {
-  return {time: time, cmd: cmd, args: args}
+function preparePlaybackObject(cmd, time, ...args)
+{
+  return {time: time, cmd: cmd, args: args};
 }
 
 var helperMethods = {setBPM, getBPM, playSound, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
@@ -207,7 +213,15 @@ function addToQueue(song)
  */
 function getFromQueue()
 {
-  var returnvalue = queue.pop();
+
+  var returnvalue;
+  if (stackMode)
+  {
+    returnvalue = queue.pop();
+  } else
+  {
+    returnvalue = queue.shift();
+  }
   return returnvalue;
 }
 
@@ -257,9 +271,9 @@ function checkQueue()
 async function playFromGithub(song, user)
 {
   const userRegex = /@\w+/g;
-  let dedications = song.match(userRegex)?.map(s => s.replace("@", ""))
-  song = song.replace(userRegex, "") //remove usernames from string
-  song = song.trim().replace(/\s+/, "_") //remove whitespaces
+  let dedications = song.match(userRegex)?.map(s => s.replace("@", ""));
+  song = song.replace(userRegex, ""); //remove usernames from string
+  song = song.trim().replace(/\s+/, "_"); //remove whitespaces
 
   if (!song.endsWith(".json"))
   {
@@ -375,7 +389,7 @@ function handleCommand(message, command, arg, tags)
     {
       if (cmd.length > longestCmd.length)
       {
-        console.log(cmd, "beat", longestCmd)
+        console.log(cmd, "beat", longestCmd);
         longestCmd = cmd;
       }
     }
@@ -412,6 +426,11 @@ let minPbmParam = params.get("minBpm");
 if (minPbmParam && Number(minPbmParam))
 {
   minBpm = Number(minPbmParam);
+}
+
+if (params.get("stackMode"))
+{
+  stackMode = true;
 }
 
 // ====================================================== //
