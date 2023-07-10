@@ -45,6 +45,8 @@ var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master
 var stackMode = false;
 var defaultNotation = "bongo";
 
+var currentSong = null;
+
 window.maxNotesPerBatch = 5;
 
 // ====================================================== //
@@ -152,6 +154,7 @@ function outroAnimation()
   setTimeout(function ()
   {
     playing = false;
+    currentSong = null;
   }, 1000);
 }
 function setInstrument(instrument)
@@ -264,16 +267,17 @@ function checkQueue()
   if (queue.length > 0 && playing == false)
   {
     var song = getFromQueue();
-
-    introAnimation(song);
     let handler = notations[song.notation];
     if (handler)
     {
+      currentSong = song;
+      currentSong.timeoutIDs = [];
+      introAnimation(song);
       let playbacks = handler(song);
       console.log(playbacks);
       for (let playback of playbacks)
       {
-        setTimeout(playback.cmd, playback.time, ...playback.args);
+        currentSong.timeoutIDs.push(setTimeout(playback.cmd, playback.time, ...playback.args));
       }
     }
     //addNotes(noteString, isLegacyNotation, username);
@@ -334,7 +338,7 @@ function disableBongo(args)
 }
 commands["!disablebongo"] = disableBongo;
 
-function clearQueue()
+function clearQueue(args)
 {
   if (isSuperUser(args.tags))
   {
@@ -342,7 +346,35 @@ function clearQueue()
   }
 }
 
-commands["!bongoclear"] = clearQueue
+commands["!bongoclear"] = clearQueue;
+
+function skipSong(args)
+{
+  if (!isSuperUser(args.tags))
+  {
+    return;
+  }
+  if (!currentSong)
+  {
+    return;
+  }
+
+  if (!currentSong.timeoutIDs)
+  {
+    return;
+  }
+
+  console.log(`${args.tags.username} cleared the current song ${currentSong}`)
+
+  for (let id of currentSong.timeoutIDs)
+  {
+    clearTimeout(id);
+  }
+
+  outroAnimation();
+}
+
+commands["!bongoskip"] = skipSong;
 
 // ====================================================== //
 // ==================== user commands =================== //
@@ -423,7 +455,7 @@ commands["!bongoplay"] = bongoPlay;
 function handleCommand(message, command, arg, tags)
 {
 
-  let msg = message.toLowerCase()
+  let msg = message.toLowerCase();
   let longestCmd = "";
   for (let cmd in commands)
   {
