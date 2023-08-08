@@ -145,14 +145,17 @@ function introAnimation(song)
     });
 
     document.getElementById("dedications").innerHTML = "This song is dedicated to " + song.dedications.join(", ");
+    document.getElementById("dedications").style.visibility = "visible";
   } else
   {
     document.getElementById("dedications").innerHTML = "";
+    document.getElementById("dedications").style.visibility = "hidden";
   }
 
   document.getElementById("bongocat").style.left = "0px";
   playing = true;
 }
+
 function outroAnimation()
 {
   document.getElementById("bongocat").style.left = "-1920px";
@@ -163,6 +166,7 @@ function outroAnimation()
     currentSong = null;
   }, 1000);
 }
+
 function setInstrument(instrument)
 {
   var c = document.getElementById("instruments").children;
@@ -175,12 +179,14 @@ function setInstrument(instrument)
   newInstrument.style.visibility = "visible";
 
 }
+
 function setPaw(paw, cBpm)
 {
   var currentPaw = document.getElementById(paw);
   currentPaw.style.backgroundPosition = "top right";
   window.setTimeout(releasePaw, cBpm / 2, paw);
 }
+
 function releasePaw(paw)
 {
 
