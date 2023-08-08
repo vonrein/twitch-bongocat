@@ -46,6 +46,7 @@ var stackMode = false;
 var defaultNotation = "bongo";
 
 var currentSong = null;
+var volume = 1.0;
 
 window.maxNotesPerBatch = 5;
 
@@ -63,9 +64,13 @@ notations["bongo+"] = parseSongBongo;
 // ====================================================== //
 // =================== helper methods =================== //
 // ====================================================== //
+function setVolume(volumeParam)
+{
+  volume = Math.min(1.0, Math.max(0, Number(volumeParam)));
+}
+
 function setBPM(targetBPM, username)
 {
-
   targetBPM = Number(targetBPM);
   if (isNaN(targetBPM))
   {
@@ -116,6 +121,7 @@ function playSound(cmd, cBpm)
   setInstrument(audio.dataset.instrument);
 
   audio.currentTime = 0;
+  audio.volume = volume;
   audio.play();
 }
 
@@ -364,7 +370,7 @@ function skipSong(args)
     return;
   }
 
-  console.log(`${args.tags.username} cleared the current song ${currentSong}`)
+  console.log(`${args.tags.username} cleared the current song ${currentSong}`);
 
   for (let id of currentSong.timeoutIDs)
   {
@@ -375,6 +381,17 @@ function skipSong(args)
 }
 
 commands["!bongoskip"] = skipSong;
+
+function setVolumeCommand(args)
+{
+  if (!isSuperUser(args.tags))
+  {
+    return;
+  }
+  setVolume(args.arg);
+}
+
+commands["!bongovolume"] = setVolumeCommand;
 
 // ====================================================== //
 // ==================== user commands =================== //
@@ -505,6 +522,12 @@ if (minPbmParam && Number(minPbmParam))
 if (params.get("stackMode"))
 {
   stackMode = true;
+}
+
+let volumeParam = params.get("volume");
+if (volumeParam && !isNaN(Number(volumeParam)))
+{
+  setVolume(volumeParam);
 }
 
 // ====================================================== //
