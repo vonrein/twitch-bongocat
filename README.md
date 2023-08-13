@@ -11,10 +11,18 @@ Done.
 ### How do i install it locally? (advanced users)
 If you want to modify the sounds or the behavior you can also run it locally.
 
- * Point your OBS browser source to the index.html file and add your channel name as a hash.
+#### With Docker (Docker Desktop works too)
+ * Start Http-Daemon with `docker compose up -d`. The Webserver will listen on Port 8080.
+ * Point your OBS browser source to the index.html file and add your channel name as a hash. Example:`http://localhost:8080/#jvpeek`
+ 
 
-For Example:
-http://localhost/twitch-bongocat/#jvpeek
+ * Set the size of the browser to 1920x1080 pixels.
+
+#### With Webserver (Whitout Docker)
+ * Install a Webserver (Xampp, lamp, MAMP, Apache2, Nginx...)
+ * Configure Webroot to ./src
+ * Point your OBS browser source to the index.html file and add your channel name as a hash. Example:`http://localhost/#jvpeek`
+
 
  * Set the size of the browser to 1920x1080 pixels.
 
