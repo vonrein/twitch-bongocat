@@ -1,0 +1,9 @@
+version: "3.2"
+services:
+  httpd:
+    image: httpd
+    ports:
+    - 8080:80
+    restart: unless-stopped
+    volumes:
+    - ./src:/usr/local/apache2/htdocs/
