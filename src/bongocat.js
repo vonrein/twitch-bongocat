@@ -37,12 +37,14 @@ var minBpm = 50;
 
 var bpm = {};
 bpm.user = {};
+var parts = {};
 var queue = [];
 var bongoEnabled = true;
 var playing = false;
 setBPM(128);
 var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/";
 var stackMode = false;
+var maxSongLength = 90_000; //90 secs
 var defaultNotation = "bongo";
 
 var currentSong = null;
@@ -67,6 +69,18 @@ notations["bongo+"] = parseSongBongo;
 function setVolume(volumeParam)
 {
   volume = Math.min(1.0, Math.max(0, Number(volumeParam)));
+}
+
+function setMaxSongLength(maxSongLengthParam)
+{
+  maxSongLength = Number(maxSongLengthParam);
+  if (maxSongLength > 0)
+  {
+    maxSongLength *= 1000;
+  } else
+  {
+    maxSongLength = -1;
+  }
 }
 
 function setBPM(targetBPM, username)
@@ -289,6 +303,11 @@ function checkQueue()
       console.log(playbacks);
       for (let playback of playbacks)
       {
+        if (maxSongLength > 0 && playback.time > maxSongLength)
+        {
+          currentSong.timeoutIDs.push(setTimeout(outroAnimation, maxSongLength + 1000)); //1 sek
+          break;
+        }
         currentSong.timeoutIDs.push(setTimeout(playback.cmd, playback.time, ...playback.args));
       }
     }
@@ -398,6 +417,17 @@ function setVolumeCommand(args)
 }
 
 commands["!bongovolume"] = setVolumeCommand;
+
+function setMaxSongLengthCommand(args)
+{
+  if (!isSuperUser(args.tags))
+  {
+    return;
+  }
+  setMaxSongLength(args.arg);
+}
+
+commands["!bongomaxsonglength"] = setMaxSongLengthCommand;
 
 // ====================================================== //
 // ==================== user commands =================== //
@@ -528,6 +558,12 @@ if (minPbmParam && Number(minPbmParam))
 if (params.get("stackMode"))
 {
   stackMode = true;
+}
+
+let maxSongLengthParam = params.get("minBpm");
+if (maxSongLengthParam && !isNaN(Number(maxSongLengthParam)))
+{
+  setMaxSongLength(maxSongLengthParam);
 }
 
 let volumeParam = params.get("volume");
