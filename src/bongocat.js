@@ -565,7 +565,7 @@ if (params.get("stackMode"))
   stackMode = true;
 }
 
-let maxSongLengthParam = params.get("minBpm");
+let maxSongLengthParam = params.get("maxSongLength");
 if (maxSongLengthParam && !isNaN(Number(maxSongLengthParam)))
 {
   setMaxSongLength(maxSongLengthParam);
