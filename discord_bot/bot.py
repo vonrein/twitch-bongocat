@@ -29,7 +29,7 @@ state = {}
 class SaveSongModal(ui.Modal, title="Save Song"):
 
     song_title = ui.TextInput(label="Song title")
-    file_name = ui.TextInput(label="Song name")
+    file_name = ui.TextInput(label="Command name")
     author = ui.TextInput(label="Song author")
     #notation = ui.Select(options=[SelectOption(label="Modern (bongo+)", value="bongo+"), SelectOption(label="legacy", value="bongo+")])
     notation = ui.TextInput(label="Song notation")
@@ -65,7 +65,7 @@ class SaveSongModal(ui.Modal, title="Save Song"):
         print(self.extras)
         print(interaction.message)
         file_name = self.file_name.value.strip().replace(".json", "").replace(".", "")
-        file_name = re.sub(r"\s+", "_", file_name).replace("/", "").replace("\\", "")
+        file_name = re.sub(r"\s+", "_", file_name).replace("/", "").replace("\\", "").lower()
         file_name += ".json"
         notation = self.notation.value
         if notation == "modern" or notation == "default" or notation == "bongo":
@@ -122,7 +122,7 @@ def parse_song(message: discord.Message):
             notation = "bongo+"
         
         pass
-    return Song(title, title.replace(" ", "_"), message.author.name, notation, notes)
+    return Song(title, title.replace(" ", "_").lower(), message.author.name, notation, notes)
     
 
 
@@ -236,7 +236,7 @@ def read_state():
     global state
     global state_file_path
     if not os.path.isfile(state_file_path):
-        state = {"last_time": None, "msgs": []}
+        state = {"last_time": None, "msgs": set()}
         return
     with open(state_file_path, "r") as state_file:
         state_data = json.load(state_file)
