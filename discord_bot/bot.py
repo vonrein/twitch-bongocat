@@ -3,7 +3,7 @@ from os.path import isfile
 import sys
 import json
 import re
-from typing import Optional
+from typing import Optional, List
 from dataclasses import dataclass
 
 import discord
@@ -20,7 +20,7 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 github: Github
 repo: Repository
-allowed_roles:list[int]|None = None
+allowed_roles: List[int]|None = None
 
 state_file_path = "./state.json"
 state = {}
