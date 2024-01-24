@@ -20,7 +20,7 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 github: Github
 repo: Repository
-allowed_role:str|None
+allowed_roles:list[int]|None = None
 
 state_file_path = "./state.json"
 state = {}
@@ -184,14 +184,13 @@ async def save_song(interaction: Interaction, message: Message):
     if message.id in state["msgs"]:
         await interaction.response.send_message("Already parsed this song!", ephemeral=True)
         return
-    if allowed_role:
-        role_id = int(allowed_role)
+    if allowed_roles:
         if not isinstance(interaction.user, Member):
             await interaction.response.send_message("You do not have permission to save songs!", ephemeral=True)
             return
         allowed = False
         for role in interaction.user.roles:
-            if role.id == role_id:
+            if role.id in allowed_roles:
                 allowed = True
                 break
         if not allowed:
@@ -251,7 +250,10 @@ if __name__ == "__main__":
     if not token:
         print("No discord token provided!")
         sys.exit(1)
-    allowed_role = os.environ.get("DISCORD_ALLOWED_ROLE")
+    allowed_roles_str = os.environ.get("DISCORD_ALLOWED_ROLES")
+
+    if allowed_roles_str:
+        allowed_roles = [int(role) for role in allowed_roles_str.split(",")]
     
     app_id = os.environ.get("GITHUB_APP_ID")
     private_key_path = os.environ.get("GITHUB_APP_KEY_FILE")
