@@ -42,7 +42,7 @@ var queue = [];
 var bongoEnabled = true;
 var playing = false;
 setBPM(128);
-var githubUrl = "https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/";
+var githubUrls = ["https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/","https://raw.githubusercontent.com/awsdcrafting/bongocat-songs/live/songs/"];
 var stackMode = false;
 var maxSongLength = 90_000; //90 secs
 var defaultNotation = "bongo";
@@ -329,17 +329,22 @@ async function playFromGithub(song, user)
   song += ".json";
 
   console.log("Playing", song, "from github for", user);
-  const response = await fetch(encodeURI(githubUrl + song.trim()));
-  if (response.status != 200)
-  {
-    return;
+  for (let githubUrl of githubUrls) {
+    const response = await fetch(encodeURI(githubUrl + song.trim()));
+    if (response.status != 200)
+    {
+      continue;
+    }
+      //console.log(response)
+    const jsonData = await response.json();
+    console.log(jsonData);
+    jsonData.performer = user;
+    jsonData.dedications = dedications;
+    addToQueue(jsonData);
+    break
   }
-  //console.log(response)
-  const jsonData = await response.json();
-  console.log(jsonData);
-  jsonData.performer = user;
-  jsonData.dedications = dedications;
-  addToQueue(jsonData);
+  
+
 }
 
 
