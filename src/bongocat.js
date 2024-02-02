@@ -1,4 +1,5 @@
 import {parseSong as parseSongBongo} from "./modules/bongo.js";
+import {experimentalFeatures} from "./experimental/bongox.js";
 
 // ====================================================== //
 // ================== type definitions ================== //
@@ -42,7 +43,7 @@ var queue = [];
 var bongoEnabled = true;
 var playing = false;
 setBPM(128);
-var githubUrls = ["https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/","https://raw.githubusercontent.com/awsdcrafting/bongocat-songs/live/songs/"];
+var githubUrls = ["https://raw.githubusercontent.com/jvpeek/twitch-bongocat/master/songs/", "https://raw.githubusercontent.com/awsdcrafting/bongocat-songs/live/songs/"];
 var stackMode = false;
 var maxSongLength = 90_000; //90 secs
 var defaultNotation = "bongo";
@@ -51,6 +52,12 @@ var currentSong = null;
 var volume = 1.0;
 
 window.maxNotesPerBatch = 5;
+
+var audioContext;
+var mainGainNode;
+var oscillatorNode;
+var synthStarted = false;
+var synthDampening = 0.75;
 
 // ====================================================== //
 // ================== notation handlers ================= //
@@ -69,6 +76,7 @@ notations["bongo+"] = parseSongBongo;
 function setVolume(volumeParam)
 {
   volume = Math.min(1.0, Math.max(0, Number(volumeParam)));
+  mainGainNode.gain.value = volume * synthDampening;
 }
 
 function setMaxSongLength(maxSongLengthParam)
@@ -81,6 +89,20 @@ function setMaxSongLength(maxSongLengthParam)
   {
     maxSongLength = -1;
   }
+}
+
+function clamp(value, min, max)
+{
+  if (value > max)
+  {
+    return max;
+  }
+  if (value < min)
+  {
+    return min;
+  }
+  return value;
+  //return Math.min(Math.max(value, min), max)
 }
 
 function setBPM(targetBPM, username)
@@ -139,6 +161,36 @@ function playSound(cmd, cBpm)
   audio.play();
 }
 
+function prepareSynth(type)
+{
+  audioContext = new AudioContext();
+  mainGainNode = audioContext.createGain();
+  mainGainNode.connect(audioContext.destination);
+  mainGainNode.gain.value = 0;
+  oscillatorNode = audioContext.createOscillator();
+  oscillatorNode.connect(mainGainNode);
+  oscillatorNode.type = type;
+  synthStarted = false;
+  return {"ctx": audioContext, "gain": mainGainNode, "osc": oscillatorNode};
+}
+
+function playSynthSound(frequency, time)
+{
+  if (!synthStarted)
+  {
+    oscillatorNode.start();
+    oscillatorNode.stop(maxSongLength / 1000);
+    synthStarted = true;
+  }
+  mainGainNode.gain.setValueAtTime(volume * synthDampening, time);
+  oscillatorNode.frequency.setValueAtTime(frequency, time);
+}
+
+function muteSynth(time)
+{
+  mainGainNode.gain.setValueAtTime(0, time);
+}
+
 function introAnimation(song)
 {
   let username = song.performer;
@@ -174,6 +226,15 @@ function outroAnimation()
 {
   document.getElementById("bongocat").style.left = "-1920px";
   setInstrument("none");
+  if (mainGainNode)
+  {
+    mainGainNode.gain.value = 0;
+  }
+  if (oscillatorNode)
+  {
+    oscillatorNode.stop();
+    synthStarted = false;
+  }
   setTimeout(function ()
   {
     playing = false;
@@ -213,7 +274,7 @@ function preparePlaybackObject(cmd, time, ...args)
   return {time: time, cmd: cmd, args: args};
 }
 
-var helperMethods = {setBPM, getBPM, playSound, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
+var helperMethods = {clamp, setBPM, getBPM, playSound, prepareSynth, playSynthSound, muteSynth, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
 for (const key in helperMethods)
 {
   window[key] = helperMethods[key];
@@ -294,12 +355,16 @@ function checkQueue()
   {
     var song = getFromQueue();
     let handler = notations[song.notation];
+    if (song.experimental)
+    {
+      handler = experimentalFeatures[song.notation];
+    }
     if (handler)
     {
       currentSong = song;
       currentSong.timeoutIDs = [];
-      introAnimation(song);
       let playbacks = handler(song);
+      introAnimation(song);
       console.log(playbacks);
       for (let playback of playbacks)
       {
@@ -329,21 +394,22 @@ async function playFromGithub(song, user)
   song += ".json";
 
   console.log("Playing", song, "from github for", user);
-  for (let githubUrl of githubUrls) {
+  for (let githubUrl of githubUrls)
+  {
     const response = await fetch(encodeURI(githubUrl + song.trim()));
     if (response.status != 200)
     {
       continue;
     }
-      //console.log(response)
+    //console.log(response)
     const jsonData = await response.json();
     console.log(jsonData);
     jsonData.performer = user;
     jsonData.dedications = dedications;
     addToQueue(jsonData);
-    break
+    break;
   }
-  
+
 
 }
 
@@ -481,6 +547,19 @@ function bongo(args)
   addToQueue(song);
 }
 commands["!bongol"] = bongo;
+
+function bongox(args)
+{
+  let split = args.arg.indexOf(" ");
+  let experiment = args.arg.slice(0, split);
+  let notes = args.arg.slice(split + 1);
+  let username = args.tags.username;
+  let song = {performer: args.tags.username, notes: notes, notation: experiment, "experimental": true};
+  addToQueue(song);
+  //experimentalFeatures[experiment]?.(notes, username)
+}
+commands["!bongox"] = bongox;
+
 
 function changeBpm(args)
 {
