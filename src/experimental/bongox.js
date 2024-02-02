@@ -123,13 +123,13 @@ function rtttl(song)
     let bpm = 63;
 
     let splits = notes.split(":");
-    /* we do not use song names at the moment
+    // we do not use song names at the moment
     let name = ""
     if (splits.length >= 3) {
         name = splits.shift()
         name = name.trim()
     }
-    */
+    
 
     let regex = /(?:(\w)=(\d+))|(?:(\d+)?(a#|ab|a|b|h|c#|c|db|d|eb|e#|e|fb|f#|f|gb|g#|g|p)(\d)?(\.)?)/gi; //rtttl notation converted to regex
     //groups:

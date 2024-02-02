@@ -357,7 +357,7 @@ function checkQueue()
     let handler = notations[song.notation];
     if (song.experimental)
     {
-      handler = experimentalFeatures[song.notation];
+      handler = experimentalFeatures[song.notation] || handler;
     }
     if (handler)
     {
