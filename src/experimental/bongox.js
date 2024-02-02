@@ -122,7 +122,6 @@ function rtttl(song)
     let octave = 5;
     let bpm = 63;
 
-    console.log("notes", notes);
     let splits = notes.split(":");
     /* we do not use song names at the moment
     let name = ""
@@ -144,6 +143,7 @@ function rtttl(song)
     let time = 1; //current time in seconds
     let playbacks = [];
     prepareSynth("square");
+    playbacks.push(preparePlaybackObject(setInstrument, 0, "nokia3210"))
     while (splits.length > 0)
     {
         let notes = splits.shift();
@@ -240,6 +240,9 @@ function rtttl(song)
                 let noteFrequency = noteFreq[noteOctave][noteStr];
                 if (noteFrequency)
                 {
+                    let paws = ["paw-left", "paw-right"]
+                    let rnd = Math.floor(Math.random() * 2)
+                    playbacks.push(preparePlaybackObject(setPaw, time*1000, paws[rnd], bpm))
                     //playSynthSound(noteFrequency, time)
                     playbacks.push(preparePlaybackObject(playSynthSound, 0, noteFrequency, time));
                     time += noteLength / 10 * 8
