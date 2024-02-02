@@ -259,7 +259,7 @@ function setPaw(paw, cBpm)
 {
   var currentPaw = document.getElementById(paw);
   currentPaw.style.backgroundPosition = "top right";
-  window.setTimeout(releasePaw, cBpm / 2, paw);
+  window.setTimeout(releasePaw, 1000 * (60 / cBpm / 2), paw);
 }
 
 function releasePaw(paw)

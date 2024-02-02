@@ -242,7 +242,7 @@ function rtttl(song)
                 {
                     let paws = ["paw-left", "paw-right"]
                     let rnd = Math.floor(Math.random() * 2)
-                    playbacks.push(preparePlaybackObject(setPaw, time*1000, paws[rnd], bpm))
+                    playbacks.push(preparePlaybackObject(setPaw, time*1000, paws[rnd], bpm * (noteDuration / 4)))
                     //playSynthSound(noteFrequency, time)
                     playbacks.push(preparePlaybackObject(playSynthSound, 0, noteFrequency, time));
                     time += noteLength / 10 * 8
