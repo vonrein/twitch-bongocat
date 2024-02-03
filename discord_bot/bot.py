@@ -102,7 +102,7 @@ def parse_song(message: discord.Message):
         return None
 
     note_begin = message.content.find("!bongo")
-    title = message.content[:note_begin].strip()
+    title = message.content[:note_begin].strip().replace("\n", "\\n")
     note_begin = message.content.find(" ", note_begin+1)
     notes = message.content[note_begin:].strip()
 
@@ -121,7 +121,6 @@ def parse_song(message: discord.Message):
         if "v" in notes:
             notation = "bongo+"
         
-        pass
     return Song(title, title.replace(" ", "_").lower(), message.author.name, notation, notes)
     
 
@@ -202,6 +201,8 @@ async def save_song(interaction: Interaction, message: Message):
     if not song:
         await interaction.response.send_message("No song detected!", ephemeral=True)
         return
+    print(song)
+    print(message)
     interaction.extras["song"] = song
     interaction.extras["modal"] = SaveSongModal(default_song_title=song.title, default_file_name=song.file_name, default_author=song.author, default_notation=song.notation, default_notes=song.notes, message=message)
     await interaction.response.send_modal(interaction.extras["modal"])
