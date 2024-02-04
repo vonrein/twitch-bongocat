@@ -1,5 +1,6 @@
 
 let experimentalFeatures = {};
+let extensionFeatures = {};
 
 
 function createNoteTable()
@@ -261,4 +262,4 @@ function rtttl(song)
 experimentalFeatures["rtttl"] = rtttl;
 experimentalFeatures["rttl"] = rtttl;
 
-export {experimentalFeatures};
+export {extensionFeatures, experimentalFeatures};

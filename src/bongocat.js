@@ -1,5 +1,5 @@
 import {parseSong as parseSongBongo} from "./modules/bongo.js";
-import {experimentalFeatures} from "./experimental/bongox.js";
+import {extensionFeatures, experimentalFeatures} from "./experimental/bongox.js";
 
 // ====================================================== //
 // ================== type definitions ================== //
@@ -47,6 +47,8 @@ var githubUrls = ["https://raw.githubusercontent.com/jvpeek/twitch-bongocat/mast
 var stackMode = false;
 var maxSongLength = 90_000; //90 secs
 var defaultNotation = "bongo";
+var disableExperiments = false;
+var disableExtensions = false;
 
 var currentSong = null;
 var volume = 1.0;
@@ -57,7 +59,7 @@ var audioContext;
 var mainGainNode;
 var oscillatorNode;
 var synthStarted = false;
-var synthDampening = 0.75;
+var synthDampening = 0.1;
 
 // ====================================================== //
 // ================== notation handlers ================= //
@@ -76,7 +78,10 @@ notations["bongo+"] = parseSongBongo;
 function setVolume(volumeParam)
 {
   volume = Math.min(1.0, Math.max(0, Number(volumeParam)));
-  mainGainNode.gain.value = volume * synthDampening;
+  if (mainGainNode)
+  {
+    mainGainNode.gain.value = volume * synthDampening;
+  }
 }
 
 function setMaxSongLength(maxSongLengthParam)
@@ -176,6 +181,10 @@ function prepareSynth(type)
 
 function playSynthSound(frequency, time)
 {
+  if (!audioContext || !mainGainNode || !oscillatorNode)
+  {
+    return;
+  }
   if (!synthStarted)
   {
     oscillatorNode.start();
@@ -188,6 +197,10 @@ function playSynthSound(frequency, time)
 
 function muteSynth(time)
 {
+  if (!mainGainNode)
+  {
+    return;
+  }
   mainGainNode.gain.setValueAtTime(0, time);
 }
 
@@ -355,7 +368,11 @@ function checkQueue()
   {
     var song = getFromQueue();
     let handler = notations[song.notation];
-    if (song.experimental)
+    if (song.extension && !disableExtensions)
+    {
+      handler = extensionFeatures[song.notation] || handler;
+    }
+    if (song.experimental && !disableExperiments)
     {
       handler = experimentalFeatures[song.notation] || handler;
     }
@@ -554,7 +571,7 @@ function bongox(args)
   let experiment = args.arg.slice(0, split);
   let notes = args.arg.slice(split + 1);
   let username = args.tags.username;
-  let song = {performer: args.tags.username, notes: notes, notation: experiment, "experimental": true};
+  let song = {performer: args.tags.username, notes: notes, notation: experiment, "experimental": true, "extension": true};
   addToQueue(song);
   //experimentalFeatures[experiment]?.(notes, username)
 }
@@ -642,6 +659,16 @@ if (minPbmParam && Number(minPbmParam))
 if (params.get("stackMode"))
 {
   stackMode = true;
+}
+
+if (params.get("disableExperiments"))
+{
+  disableExperiments = true;
+}
+
+if (params.get("disableExtensions"))
+{
+  disableExtensions = true;
 }
 
 let maxSongLengthParam = params.get("maxSongLength");
