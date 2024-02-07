@@ -117,6 +117,7 @@ const noteFreq = createNoteTable();
 function rtttl(song)
 {
     let notes = song.notes;
+    notes = notes.replaceAll("_", "#");
     let username = song.performer;
     console.log("Playing RTTTL", notes, "for", username);
     let duration = 4;
