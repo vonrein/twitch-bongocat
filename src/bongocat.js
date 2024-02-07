@@ -243,7 +243,7 @@ function outroAnimation()
   {
     mainGainNode.gain.value = 0;
   }
-  if (oscillatorNode)
+  if (oscillatorNode && synthStarted)
   {
     oscillatorNode.stop();
     synthStarted = false;

@@ -117,6 +117,7 @@ const noteFreq = createNoteTable();
 function rtttl(song)
 {
     let notes = song.notes;
+    notes = notes.replaceAll("_", "#");
     let username = song.performer;
     console.log("Playing RTTTL", notes, "for", username);
     let duration = 4;
@@ -125,14 +126,15 @@ function rtttl(song)
 
     let splits = notes.split(":");
     // we do not use song names at the moment
-    let name = ""
-    if (splits.length >= 3) {
-        name = splits.shift()
-        name = name.trim()
+    let name = "";
+    if (splits.length >= 3)
+    {
+        name = splits.shift();
+        name = name.trim();
     }
-    
 
-    let regex = /(?:(\w)=(\d+))|(?:(\d+)?(a#|ab|a|b|h|c#|c|db|d|eb|e#|e|fb|f#|f|gb|g#|g|p)(\d)?(\.)?)/gi; //rtttl notation converted to regex
+
+    let regex = /(?:(\w)=(\d+))|(?:(\d+)?(a#|ab|a|b|h|c#|c|db|d#|d|eb|e#|e|fb|f#|f|gb|g#|g|p)(\.)?(\d)?(\.)?)/gi; //rtttl notation converted to regex
     //groups:
     //0 = complete capture
     //1 = key
@@ -144,7 +146,7 @@ function rtttl(song)
     let time = 1; //current time in seconds
     let playbacks = [];
     prepareSynth("square");
-    playbacks.push(preparePlaybackObject(setInstrument, 0, "nokia3210"))
+    playbacks.push(preparePlaybackObject(setInstrument, 0, "nokia3210"));
     while (splits.length > 0)
     {
         let notes = splits.shift();
@@ -185,15 +187,15 @@ function rtttl(song)
                 }
             }
             let noteLength = 240 / bpm / noteDuration;
-            if (note[6])
+            if (note[5] || note[7])
             {
                 noteLength *= 1.5;
             }
             let noteOctave = octave;
             //noteOctave = 1
-            if (note[5])
+            if (note[6])
             {
-                let numberValue = Math.floor(Number(note[5]));
+                let numberValue = Math.floor(Number(note[6]));
                 if (numberValue && !Number.isNaN(numberValue))
                 {
                     noteOctave = clamp(numberValue, 0, 8);
@@ -241,15 +243,15 @@ function rtttl(song)
                 let noteFrequency = noteFreq[noteOctave][noteStr];
                 if (noteFrequency)
                 {
-                    let paws = ["paw-left", "paw-right"]
-                    let rnd = 0 + (Math.random() > 0.95)
-                    playbacks.push(preparePlaybackObject(setPaw, time*1000, paws[rnd], bpm * (noteDuration / 4)))
+                    let paws = ["paw-left", "paw-right"];
+                    let rnd = 0 + (Math.random() > 0.95);
+                    playbacks.push(preparePlaybackObject(setPaw, time * 1000, paws[rnd], bpm * (noteDuration / 4)));
                     //playSynthSound(noteFrequency, time)
                     playbacks.push(preparePlaybackObject(playSynthSound, 0, noteFrequency, time));
-                    time += noteLength / 10 * 8
+                    time += noteLength / 10 * 8;
                     //muteSynth(time)
                     playbacks.push(preparePlaybackObject(muteSynth, 0, time));
-                    time += noteLength / 10 * 2
+                    time += noteLength / 10 * 2;
                 }
             }
         }
