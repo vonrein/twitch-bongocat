@@ -110,6 +110,10 @@ function clamp(value, min, max)
   //return Math.min(Math.max(value, min), max)
 }
 
+function clampBpm(bpm) {
+  return clamp(bpm, minBpm, maxBpm)
+}
+
 function setBPM(targetBPM, username)
 {
   targetBPM = Number(targetBPM);
@@ -117,14 +121,7 @@ function setBPM(targetBPM, username)
   {
     return;
   }
-  if (targetBPM < minBpm)
-  {
-    targetBPM = minBpm;
-  }
-  if (targetBPM > maxBpm)
-  {
-    targetBPM = maxBpm;
-  }
+  targetBPM = clampBpm(targetBPM)
   if (username === undefined)
   {
     console.log("<Global> current BPM: " + bpm.global + ". Target: " + Math.floor(60000 / targetBPM));
@@ -287,7 +284,7 @@ function preparePlaybackObject(cmd, time, ...args)
   return {time: time, cmd: cmd, args: args};
 }
 
-var helperMethods = {clamp, setBPM, getBPM, playSound, prepareSynth, playSynthSound, muteSynth, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
+var helperMethods = {clamp, clampBpm, setBPM, getBPM, playSound, prepareSynth, playSynthSound, muteSynth, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
 for (const key in helperMethods)
 {
   window[key] = helperMethods[key];
