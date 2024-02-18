@@ -110,6 +110,10 @@ function clamp(value, min, max)
   //return Math.min(Math.max(value, min), max)
 }
 
+function clampBpm(bpm) {
+  return clamp(bpm, minBpm, maxBpm)
+}
+
 function setBPM(targetBPM, username)
 {
   targetBPM = Number(targetBPM);
@@ -117,14 +121,7 @@ function setBPM(targetBPM, username)
   {
     return;
   }
-  if (targetBPM < minBpm)
-  {
-    targetBPM = minBpm;
-  }
-  if (targetBPM > maxBpm)
-  {
-    targetBPM = maxBpm;
-  }
+  targetBPM = clampBpm(targetBPM)
   if (username === undefined)
   {
     console.log("<Global> current BPM: " + bpm.global + ". Target: " + Math.floor(60000 / targetBPM));
@@ -238,7 +235,12 @@ function introAnimation(song)
 function outroAnimation()
 {
   document.getElementById("bongocat").style.left = "-1920px";
+  document.getElementById("dedications").style.visibility = "hidden";
   setInstrument("none");
+  for (let id of currentSong.timeoutIDs)
+  {
+    clearTimeout(id);
+  }
   if (mainGainNode)
   {
     mainGainNode.gain.value = 0;
@@ -253,6 +255,28 @@ function outroAnimation()
     playing = false;
     currentSong = null;
   }, 1000);
+}
+
+function errorAnimation(error)
+{
+  document.getElementById("nametag").innerHTML = document.getElementById("nametag").innerHTML.split(" ")[0] + " crashed the cat :(";
+  document.getElementById("dedications").style.visibility = "visible";
+  document.getElementById("dedications").innerHTML = "Tag scisneromam to fix: " + error;
+  setInstrument("none");
+  for (let id of currentSong.timeoutIDs)
+  {
+    clearTimeout(id);
+  }
+  if (mainGainNode)
+  {
+    mainGainNode.gain.value = 0;
+  }
+  if (oscillatorNode && synthStarted)
+  {
+    oscillatorNode.stop();
+    synthStarted = false;
+  }
+  setTimeout(outroAnimation, 5000);
 }
 
 function setInstrument(instrument)
@@ -282,12 +306,27 @@ function releasePaw(paw)
   currentPaw.style.backgroundPosition = "top left";
 }
 
-function preparePlaybackObject(cmd, time, ...args)
+function saveCmd(cmd)
 {
-  return {time: time, cmd: cmd, args: args};
+  return (...args) =>
+  {
+    try
+    {
+      cmd(...args);
+    } catch (error)
+    {
+      errorAnimation(error);
+      console.error(error);
+    }
+  };
 }
 
-var helperMethods = {clamp, setBPM, getBPM, playSound, prepareSynth, playSynthSound, muteSynth, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
+function preparePlaybackObject(cmd, time, ...args)
+{
+  return {time: time, cmd: saveCmd(cmd), args: args};
+}
+
+var helperMethods = {clamp, clampBpm, setBPM, getBPM, playSound, prepareSynth, playSynthSound, muteSynth, introAnimation, outroAnimation, setInstrument, setPaw, releasePaw, preparePlaybackObject};
 for (const key in helperMethods)
 {
   window[key] = helperMethods[key];

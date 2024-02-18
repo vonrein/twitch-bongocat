@@ -165,7 +165,7 @@ function rtttl(song)
                 switch (key)
                 {
                     case "b":
-                        bpm = numberValue;
+                        bpm = clampBpm(numberValue);
                         break;
                     case "o":
                         octave = numberValue;
