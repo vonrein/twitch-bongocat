@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Bongo Cat Song Tester</title>
+  <link rel="stylesheet" href="bongocat.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    /* --- START: Winamp Style --- */
+    @font-face {
+      font-family: 'Wina_Classic_Outline';
+      src: url('https://db.onlinewebfonts.com/t/7174c10a8327318859c355554f762f02.eot');
+      src: url('https://db.onlinewebfonts.com/t/7174c10a8327318859c355554f762f02.eot?#iefix') format('embedded-opentype'),
+        url('https://db.onlinewebfonts.com/t/7174c10a8327318859c355554f762f02.woff2') format('woff2'),
+        url('https://db.onlinewebfonts.com/t/7174c10a8327318859c355554f762f02.woff') format('woff'),
+        url('https://db.onlinewebfonts.com/t/7174c10a8327318859c355554f762f02.ttf') format('truetype'),
+        url('https://db.onlinewebfonts.com/t/7174c10a8327318859c355554f762f02.svg#Wina_Classic_Outline') format('svg');
+    }
+
+    /* Reset margins and padding for cross-browser consistency */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    .controls-wrapper {
+      padding: 20px;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto; /* ✅ keeps consistent centering */
+    }
+
+    /* --- UPDATED: Editor Layout --- */
+    .editor-area {
+      display: flex;
+      gap: 15px; /* Increased gap slightly for better separation */
+      margin-top: 10px;
+      align-items: stretch; /* 🚀 This makes the children have the same height */
+    }
+
+    /* --- UPDATED: Left Panel --- */
+    .song-panel {
+      flex: 1; /* Makes this panel take up 50% of the available space */
+      display: flex;
+      flex-direction: column;
+      min-width: 0; /* Prevents flex items from overflowing their container */
+    }
+    
+    /* --- UPDATED & MERGED: Textarea --- */
+    #song-input {
+      font-family: 'Courier New', monospace;
+      background: #282a36;
+      color: #0f0;
+      text-shadow: 0 0 4px #0f0;
+      border: 2px inset #333;
+      padding: 6px;
+      box-sizing: border-box;
+      height: 300px; /* Fixed height instead of flex:1 */
+      resize: none;
+      margin-bottom: 10px;
+      width: 100%; /* Ensure it takes full width of container */
+    }
+    
+    #song-input:focus {
+      outline: none;
+      border-color: #0f0;
+      box-shadow: 0 0 6px #0f0;
+    }
+
+    /* --- UPDATED: Right Panel (Notes Container) --- */
+    #notes-container {
+      flex: 1; /* Makes this container take up the other 50% */
+      min-width: 0; /* Prevents flex items from overflowing */
+      padding: 10px;
+      overflow-y: auto;
+      font-family: 'Courier New', Courier, monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background-color: #282a36;<!--#282a36;#082a08;-->
+      color: #00FF00;
+      border: 2px inset #333; /* Made border style consistent with textarea */
+      box-sizing: border-box;
+      height: 300px; /* Fixed height to match textarea */
+    }
+
+    /* buttons row stays under textarea */
+    .winamp-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 10px;
+    }
+
+    .winamp-container {
+      background-color: #212121;
+      border: 2px solid #555;
+      border-top-color: #777;
+      border-left-color: #777;
+      padding: 8px;
+      width: 650px;
+      margin: 20px auto; /* ✅ center cross-browser */
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      font-family: 'Wina_Classic_Outline', 'MS Sans Serif', 'Tahoma', sans-serif;
+      color: #ddd;
+    }
+
+    .winamp-header {
+      background: linear-gradient(to right, #1a1a1a, #333);
+      color: #eee;
+      font-family: 'Tahoma', sans-serif;
+      font-size: 12px;
+      padding: 3px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .winamp-header .window-buttons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .winamp-header .btn {
+      width: 12px;
+      height: 12px;
+      background: #555;
+      border: 1px solid #222;
+      cursor: pointer;
+    }
+
+    
+    /* This rule now styles ALL buttons in the controls */
+.winamp-controls button {
+  background: #bfcdd3;
+  border: 1px solid #555;
+  color: #2f374d;
+  font-weight: bold;
+  text-align: center;
+  margin: 0 2px;
+  
+  width: 70px;      /* Set a consistent width for all buttons */
+  height: 50px;     /* Set a consistent height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+}
+
+.winamp-controls button:hover {
+
+  border-color: #0f0;
+}
+
+.winamp-controls button:active {
+  border-top-color: #0f0;
+  border-left-color: #0f0;
+}
+
+
+button:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+
+.winamp-controls button .icon {
+  font-size: 1.4em;
+}
+
+
+.winamp-controls button .text {
+  font-size: 0.8em;
+  margin-top: 4px;
+}
+
+
+
+
+
+    /* LED style for the note display */
+    #note-display {
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #0f0;
+      text-shadow: 0 0 4px #0f0;
+      border: 2px inset #333;
+      padding: 4px 8px;
+      margin-left: 10px;
+    }
+
+    /* --- END: Winamp Style --- */
+
+
+    .note {
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin: 2px;
+      display: inline-block;
+      background-color: #333;
+      border: 1px solid #555;
+      color:#63caaf;
+
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .note:hover {
+      border-color: #888;
+    }
+
+    .highlight {
+      background-color:#ff9800;
+      color: black;
+    }
+
+    #note-display.disabled {
+      pointer-events: none;
+    }
+    
+
+    html {
+      font-size: 10px;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      width: 100%; /* Ensure full width */
+    }
+
+    body {
+      background-color: #404040;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden; /* Changed from overflow: hidden to prevent horizontal scroll issues */
+    }
+
+    #bongocat {
+      --s: 0.1; /* Set scale to 50% */
+      position: fixed;
+      left: -800px;
+      bottom: 0px;
+      width: 800px;
+      height: 600px;
+      transform-origin: bottom left;
+      transform: scale(var(--s, 1));
+      transition: left 1s;
+      z-index: -1;
+    }
+
+    #table {
+      float: left;
+      border-top: 10px solid black;
+      background: white;
+      height: 410px;
+      width: 1920px;
+      transform: rotate(14deg);
+      transform-origin: top left;
+      position: absolute;
+      left: 0px;
+      bottom: 0px;
+    }
+
+    #cat {
+      width: 800px;
+      height: 450px;
+      display: block;
+      position: absolute;
+      transform-origin: top left;
+      bottom: 0px;
+      left: 0px;
+    }
+
+    #cat div {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+
+    #head {
+      background: url("images/cat.png");
+    }
+
+    #mouth {
+      background: url("images/mouth.png");
+    }
+
+    #paw-left {
+      background: url("images/paw-left.png");
+      background-position: left top;
+    }
+
+    #paw-right {
+      background: url("images/paw-right.png");
+      background-position: left top;
+    }
+
+    #dedications {
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      background: rgba(0, 0, 0, 0.3);
+      font-size: 30px;
+      color: rgba(255, 255, 255, 0.7);
+      position: absolute;
+      top: 400px;
+      left: 300px;
+      white-space: nowrap;
+      padding: 10px 15px;
+    }
+
+    #instruments {
+      width: 800px;
+      height: 450px;
+      display: block;
+      position: absolute;
+      transform-origin: top left;
+      bottom: 0px;
+      left: 0px;
+    }
+
+    #instruments div {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      visibility: hidden;
+    }
+
+    #instruments #bongo {
+      background: url("images/bongo.png");
+    }
+
+    #instruments #keyboard {
+      background: url("images/keyboard.png");
+    }
+
+    #instruments #cymbal {
+      background: url("images/cymbal.png");
+    }
+
+    #instruments #marimba {
+      background: url("images/marimba.png");
+    }
+
+    #instruments #tambourine {
+      background: url("images/tambourine.png");
+    }
+
+    #instruments #cowbell {
+      background: url("images/cowbell.png");
+    }
+
+    #instruments #TR808 {
+      background: url("images/808.png");
+    }
+
+    #instruments #nokia3210 {
+      background: url("images/NOKIA3210.png");
+    }
+    
+  </style>
+
+<body onload="window.scrollTo(0, 0);">
+
+  <div class="controls-wrapper">
+    <label for="song-selector">Example Songs:</label>
+    <select id="song-selector" style="margin-bottom: 10px;">
+      <option value="">-- Select a song --</option>
+    </select>
+    <br>
+    <div class="editor-area">
+      <div class="song-panel">
+        <textarea id="song-input" rows="10" cols="80" placeholder="Enter your song here or select an example...">!bongo 1 1 5 5 6 6 5 . 4 4 3 3 2 2 1 . 5 5 4 4 3 3 2 . 5 5 4 4 3 3 2 . 1 1 5 5 6 6 5 . 4 4 3 3 2 2 1</textarea>
+
+        <div class="winamp-controls">
+  <button id="restart-button">
+    <span class="icon">⏮</span>
+    <span class="text">Restart Song</span>
+  </button>
+  <button id="prev-note-button">
+    <span class="icon">⏪</span>
+    <span class="text">Prev</span>
+  </button>
+  <button id="play-pause-button">
+    <span class="icon">▶</span>
+    <span class="text">Play</span>
+  </button>
+  <button id="next-note-button">
+    <span class="icon">⏩</span>
+    <span class="text">Next</span>
+  </button>
+  <button id="update-song-button">
+    <span class="icon">⏭</span>
+    <span class="text">Update Song from Input</span>
+  </button>
+  <span id="note-display">Note: 0/0</span>
+</div>
+      </div>
+
+      <div id="notes-container"></div>
+    </div>
+  </div>
+
+
+  <div id="bongocat">
+    <div id="table">
+    </div>
+    <div id="instruments">
+      <div id="bongo"></div>
+      <div id="keyboard"></div>
+      <div id="cymbal"></div>
+      <div id="marimba"></div>
+      <div id="tambourine"></div>
+      <div id="cowbell"></div>
+      <div id="TR808"></div>
+      <div id="nokia3210"></div>
+    </div>
+
+    <div id="cat">
+      <div id="head"></div>
+      <div id="mouth"></div>
+      <div id="paw-left"></div>
+      <div id="paw-right"></div>
+      <div id="dedicationswrapper"><span id="dedications"></span></div>
+    </div>
+  </div>
+
+  
+  <audio data-key="AL" data-paw="paw-left" data-instrument="bongo" src="sounds/bongocat/bongo0.mp3"></audio>
+  <audio data-key="SL" data-paw="paw-right" data-instrument="bongo" src="sounds/bongocat/bongo1.mp3"></audio>
+  <audio data-key="DL" data-paw="paw-left" data-instrument="cowbell" src="sounds/bongocat/cowbell.mp3"></audio>
+  <audio data-key="FL" data-paw="paw-left" data-instrument="cymbal" src="sounds/bongocat/cymbal.mp3"></audio>
+  <audio data-key="GL" data-paw="paw-left" data-instrument="tambourine" src="sounds/bongocat/tambourine.mp3"></audio>
+  <audio data-key="ML" data-paw="mouth" data-instrument="none" src="sounds/bongocat/meow.mp3"></audio>
+
+    <!-- extended drums start here, add 4 new sound to emty Keys X, C, B and N--> 
+
+    <audio data-key="XL" data-paw="paw-left" data-instrument="TR808" src="sounds/bongocat/BD.mp3"></audio>
+    <audio data-key="CL" data-paw="paw-right" data-instrument="TR808" src="sounds/bongocat/SD.mp3"></audio>
+    <audio data-key="BL" data-paw="paw-left" data-instrument="TR808" src="sounds/bongocat/CH.mp3"></audio>
+    <audio data-key="NL" data-paw="paw-right" data-instrument="TR808" src="sounds/bongocat/OH.mp3"></audio>
+  
+    <!-- extended drums ends here--> 
+
+  <audio data-key="1L" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c4.mp3"></audio>
+  <audio data-key="2L" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c4s.mp3"></audio>
+  <audio data-key="3L" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/d4.mp3"></audio>
+  <audio data-key="4L" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/d4s.mp3"></audio>
+  <audio data-key="5L" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/e4.mp3"></audio>
+  <audio data-key="6L" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/f4.mp3"></audio>
+  <audio data-key="7L" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/f4s.mp3"></audio>
+  <audio data-key="8L" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g4.mp3"></audio>
+  <audio data-key="9L" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g4s.mp3"></audio>
+  <audio data-key="0L" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/a4.mp3"></audio>
+
+  <audio data-key="QL" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/c4.mp3"></audio>
+  <audio data-key="WL" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/c4s.mp3"></audio>
+  <audio data-key="EL" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/d4.mp3"></audio>
+  <audio data-key="RL" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/d4s.mp3"></audio>
+  <audio data-key="TL" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/e4.mp3"></audio>
+  <audio data-key="YL" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/f4.mp3"></audio>
+  <audio data-key="UL" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/f4s.mp3"></audio>
+  <audio data-key="IL" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/g4.mp3"></audio>
+  <audio data-key="OL" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/g4s.mp3"></audio>
+  <audio data-key="PL" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/a4.mp3"></audio>
+
+  <audio data-key="A" data-paw="paw-left" data-instrument="bongo" src="sounds/bongocat/bongo0.mp3"></audio>
+  <audio data-key="S" data-paw="paw-right" data-instrument="bongo" src="sounds/bongocat/bongo1.mp3"></audio>
+  <audio data-key="D" data-paw="paw-left" data-instrument="cowbell" src="sounds/bongocat/cowbell.mp3"></audio>
+  <audio data-key="F" data-paw="paw-left" data-instrument="cymbal" src="sounds/bongocat/cymbal.mp3"></audio>
+  <audio data-key="G" data-paw="paw-left" data-instrument="tambourine" src="sounds/bongocat/tambourine.mp3"></audio>
+  <audio data-key="M" data-paw="mouth" data-instrument="none" src="sounds/bongocat/meow.mp3"></audio>
+
+  <!-- extended drums start here, add 4 new sound to emty Keys X, C, B and N--> 
+
+  <audio data-key="X" data-paw="paw-left" data-instrument="TR808" src="sounds/bongocat/BD.mp3"></audio>
+  <audio data-key="C" data-paw="paw-right" data-instrument="TR808" src="sounds/bongocat/SD.mp3"></audio>
+  <audio data-key="B" data-paw="paw-left" data-instrument="TR808" src="sounds/bongocat/CH.mp3"></audio>
+  <audio data-key="N" data-paw="paw-right" data-instrument="TR808" src="sounds/bongocat/OH.mp3"></audio>
+
+  <!-- extended drums ends here--> 
+
+  <audio data-key="^1" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c5.mp3"></audio>
+  <audio data-key="^1#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c5s.mp3"></audio>
+  <audio data-key="^2" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/d5.mp3"></audio>
+  <audio data-key="^2#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/d5s.mp3"></audio>
+  <audio data-key="^3" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/e5.mp3"></audio>
+  <audio data-key="^4" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/f5.mp3"></audio>
+  <audio data-key="^4#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/f5s.mp3"></audio>
+  <audio data-key="^5" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/g5.mp3"></audio>
+  <audio data-key="^5#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/g5s.mp3"></audio>
+  <audio data-key="^6" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/a5.mp3"></audio>
+  <audio data-key="^6#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/a5s.mp3"></audio>
+  <audio data-key="^7" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/b5.mp3"></audio>
+
+  <audio data-key="1" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c4.mp3"></audio>
+  <audio data-key="1#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/c4s.mp3"></audio>
+  <audio data-key="2" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/d4.mp3"></audio>
+  <audio data-key="2#" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/d4s.mp3"></audio>
+  <audio data-key="3" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/e4.mp3"></audio>
+  <audio data-key="4" data-paw="paw-left" data-instrument="keyboard" src="sounds/bongocat/keyboard/f4.mp3"></audio>
+  <audio data-key="4#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/f4s.mp3"></audio>
+  <audio data-key="5" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g4.mp3"></audio>
+  <audio data-key="5#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g4s.mp3"></audio>
+  <audio data-key="6" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/a4.mp3"></audio>
+  <audio data-key="6#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/a4s.mp3"></audio>
+  <audio data-key="7" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/b4.mp3"></audio>
+
+  <audio data-key="V1" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/c3.mp3"></audio>
+  <audio data-key="V1#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/c3s.mp3"></audio>
+  <audio data-key="V2" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/d3.mp3"></audio>
+  <audio data-key="V2#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/d3s.mp3"></audio>
+  <audio data-key="V3" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/e3.mp3"></audio>
+  <audio data-key="V4" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/f3.mp3"></audio>
+  <audio data-key="V4#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/f3s.mp3"></audio>
+  <audio data-key="V5" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g3.mp3"></audio>
+  <audio data-key="V5#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/g3s.mp3"></audio>
+  <audio data-key="V6" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/a3.mp3"></audio>
+  <audio data-key="V6#" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/a3s.mp3"></audio>
+  <audio data-key="V7" data-paw="paw-right" data-instrument="keyboard" src="sounds/bongocat/keyboard/b3.mp3"></audio>
+
+  <audio data-key="^Q" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/c5.mp3"></audio>
+  <audio data-key="^Q#" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/c5s.mp3"></audio>
+  <audio data-key="^W" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/d5.mp3"></audio>
+  <audio data-key="^W#" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/d5s.mp3"></audio>
+  <audio data-key="^E" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/e5.mp3"></audio>
+  <audio data-key="^R" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/f5.mp3"></audio>
+  <audio data-key="^R#" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/f5s.mp3"></audio>
+  <audio data-key="^T" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/g5.mp3"></audio>
+  <audio data-key="^T#" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/g5s.mp3"></audio>
+  <audio data-key="^Y" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/a5.mp3"></audio>
+  <audio data-key="^Y#" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/a5s.mp3"></audio>
+  <audio data-key="^U" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/b5.mp3"></audio>
+
+  <audio data-key="Q" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/c4.mp3"></audio>
+  <audio data-key="Q#" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/c4s.mp3"></audio>
+  <audio data-key="W" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/d4.mp3"></audio>
+  <audio data-key="W#" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/d4s.mp3"></audio>
+  <audio data-key="E" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/e4.mp3"></audio>
+  <audio data-key="R" data-paw="paw-left" data-instrument="marimba" src="sounds/bongocat/marimba/f4.mp3"></audio>
+  <audio data-key="R#" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/f4s.mp3"></audio>
+  <audio data-key="T" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/g4.mp3"></audio>
+  <audio data-key="T#" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/g4s.mp3"></audio>
+  <audio data-key="Y" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/a4.mp3"></audio>
+  <audio data-key="Y#" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/a4s.mp3"></audio>
+  <audio data-key="U" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/b4.mp3"></audio>
+
+  <audio data-key="VQ" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/c3.mp3"></audio>
+  <audio data-key="VQ#" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/c3s.mp3"></audio>
+  <audio data-key="VW" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/d3.mp3"></audio>
+  <audio data-key="VW#" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/d3s.mp3"></audio>
+  <audio data-key="VE" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/e3.mp3"></audio>
+  <audio data-key="VR" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/f3.mp3"></audio>
+  <audio data-key="VR#" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/f3s.mp3"></audio>
+  <audio data-key="VT" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/g3.mp3"></audio>
+  <audio data-key="VT#" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/g3s.mp3"></audio>
+  <audio data-key="VY" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/a3.mp3"></audio>
+  <audio data-key="VY#" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/a3s.mp3"></audio>
+  <audio data-key="VU" data-paw="paw-right" data-instrument="marimba" src="sounds/bongocat/marimba/b3.mp3"></audio>
+
+  <script type="module" src="bongotest.js"></script>
+
+</body>
+
+</html>

@@ -133,26 +133,32 @@ function rtttl(song)
         name = name.trim();
     }
 
-
     let regex = /(?:(\w)=(\d+))|(?:(\d+)?(a#|ab|a|b|h|c#|c|db|d#|d|eb|e#|e|fb|f#|f|gb|g#|g|p)(\.)?(\d)?(\.)?)/gi; //rtttl notation converted to regex
-    //groups:
-    //0 = complete capture
-    //1 = key
-    //2 = value
-    //3 = duration
-    //4 = note
-    //5 = octave
-    //6 = dot
-    let time = 1; //current time in seconds
+    
+    let time = 0; //current time in milliseconds
     let playbacks = [];
     prepareSynth("square");
     playbacks.push(preparePlaybackObject(setInstrument, 0, "nokia3210"));
+
+    // Helper functions to play sounds with the correct AudioContext time
+    const playSynthSoundNow = (frequency) => {
+        if (window.audioContext) { // Use window.audioContext
+            playSynthSound(frequency, window.audioContext.currentTime); // Use window.audioContext
+        }
+    };
+    const muteSynthNow = () => {
+        if (window.audioContext) { // Use window.audioContext
+            muteSynth(window.audioContext.currentTime); // Use window.audioContext
+        }
+    };
+
     while (splits.length > 0)
     {
         let notes = splits.shift();
-        notes = [...notes.matchAll(regex)];
-        for (let note of notes)
+        let matchedNotes = [...notes.matchAll(regex)];
+        for (let note of matchedNotes)
         {
+            const source = note[0]; // The full matched note string
             //param handling
             if (note[1] && note[2])
             {
@@ -161,7 +167,7 @@ function rtttl(song)
                 {
                     continue;
                 }
-                let key = note[1];
+                let key = note[1].toLowerCase();
                 switch (key)
                 {
                     case "b":
@@ -186,13 +192,12 @@ function rtttl(song)
                     noteDuration = clamp(numberValue, 1, 64);
                 }
             }
-            let noteLength = 240 / bpm / noteDuration;
+            let noteLength = (60000 / bpm) * (4 / noteDuration);
             if (note[5] || note[7])
             {
                 noteLength *= 1.5;
             }
             let noteOctave = octave;
-            //noteOctave = 1
             if (note[6])
             {
                 let numberValue = Math.floor(Number(note[6]));
@@ -205,11 +210,14 @@ function rtttl(song)
             //convert alternative notation
             switch (noteStr)
             {
+                case "H":
+                    noteStr = "B";
+                    break;
                 case "BB":
                     noteStr = "A#";
                     break;
                 case "CB":
-                    noteStr = "C";
+                    noteStr = "B";
                     break;
                 case "DB":
                     noteStr = "C#";
@@ -232,33 +240,36 @@ function rtttl(song)
             }
             if (noteStr == "P")
             {
-
-                //playback objects do not work as intended???
-                playbacks.push(preparePlaybackObject(muteSynth, 0, time));
-                //muteSynth(time)
+                // This is a pause, so we just advance the time
                 time += noteLength;
             } else
             {
-
                 let noteFrequency = noteFreq[noteOctave][noteStr];
                 if (noteFrequency)
                 {
                     let paws = ["paw-left", "paw-right"];
-                    let rnd = 0 + (Math.random() > 0.95);
-                    playbacks.push(preparePlaybackObject(setPaw, time * 1000, paws[rnd], bpm * (noteDuration / 4)));
-                    //playSynthSound(noteFrequency, time)
-                    playbacks.push(preparePlaybackObject(playSynthSound, 0, noteFrequency, time));
-                    time += noteLength / 10 * 8;
-                    //muteSynth(time)
-                    playbacks.push(preparePlaybackObject(muteSynth, 0, time));
-                    time += noteLength / 10 * 2;
+                    let rnd = Math.random() > 0.5 ? 1 : 0;
+                    
+                    const pawPlayback = preparePlaybackObject(setPaw, time, paws[rnd], bpm * (noteDuration / 4));
+                    pawPlayback.source = source;
+                    playbacks.push(pawPlayback);
+
+                    const playSoundPlayback = preparePlaybackObject(playSynthSoundNow, time, noteFrequency);
+                    playSoundPlayback.source = source;
+                    playbacks.push(playSoundPlayback);
+
+                    let muteTime = time + noteLength * 0.9; // Shorten the note slightly
+                    const mutePlayback = preparePlaybackObject(muteSynthNow, muteTime);
+                    mutePlayback.source = source;
+                    playbacks.push(mutePlayback);
+
+                    time += noteLength;
                 }
             }
         }
     }
 
-    playbacks.push(preparePlaybackObject(outroAnimation, time * 1000));
-    prepareSynth("square");
+    playbacks.push(preparePlaybackObject(outroAnimation, time));
     return playbacks;
 }
 experimentalFeatures["rtttl"] = rtttl;
