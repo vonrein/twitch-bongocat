@@ -1,3 +1,9 @@
+Fork from https://github.com/JvPeek/twitch-bongocat
+
+New songs can be posted here: https://discord.com/channels/735635311442526268/755562774343581756
+
+# OG Readme
+
 ## Add the bongo cat to your stream
 A nice little bongo cat themed drum machine.  
 Be warned: This is a work in progress.
