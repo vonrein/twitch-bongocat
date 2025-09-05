@@ -7,8 +7,8 @@ import exampleSongs from "./exampleSongs.js"
 // ====================================================== //
 // ==================== global state ==================== //
 // ====================================================== //
-var maxBpm = 800;
-var minBpm = 50;
+const maxBpm = 800;
+const minBpm = 50;
 
 var bpm   = {};
 bpm.user  = {};
@@ -40,7 +40,6 @@ let currentNoteIndex = 0;
 let noteDisplay;
 let navButtonsVisible = false;
 let notesContainer;
-
 // ====================================================== //
 // ================== notation handlers ================= //
 // ====================================================== //
@@ -48,7 +47,7 @@ var notations = {};
 
 notations["bongol"] = parseSongBongo;
 notations["legacy"] = parseSongBongo;
-notations["bongo"] = parseSongBongo;
+notations["bongo"]  = parseSongBongo;
 notations["bongo+"] = parseSongBongo;
 
 
@@ -102,7 +101,6 @@ function clamp(value, min, max)
     return min;
   }
   return value;
-  //return Math.min(Math.max(value, min), max)
 }
 
 /**
@@ -189,7 +187,7 @@ function prepareSynth(type)
       audioContext.close();
   }
   audioContext = new AudioContext();
-  window.audioContext = audioContext; // <-- Add this line
+  window.audioContext = audioContext;
   mainGainNode = audioContext.createGain();
   mainGainNode.connect(audioContext.destination);
   mainGainNode.gain.value = 0;
@@ -244,7 +242,7 @@ function introAnimation(song)
   let username = song.performer;
 
   document.getElementById("bongocat").style.left = "0px";
-  document.getElementById("restart-button").disabled = false; // Enable Restart button
+  document.getElementById("restart-button").disabled = false;
   playing = true;
 }
 
@@ -311,7 +309,7 @@ function outroAnimation()
 {
   document.getElementById('play-pause-button').disabled = true;
   document.getElementById("bongocat").style.left = "-800px";
-  document.getElementById("dedications").style.visibility = "hidden";
+  //document.getElementById("dedications").style.visibility = "hidden";
   setInstrument("none");
   if (currentSong && currentSong.timeoutIDs) {
     for (let id of currentSong.timeoutIDs)
@@ -342,8 +340,8 @@ function outroAnimation()
 function errorAnimation(error)
 {
   document.getElementById("nametag").innerHTML = document.getElementById("nametag").innerHTML.split(" ")[0] + " crashed the cat :(";
-  document.getElementById("dedications").style.visibility = "visible";
-  document.getElementById("dedications").innerHTML = "Error: " + error;
+  //document.getElementById("dedications").style.visibility = "visible";
+  //document.getElementById("dedications").innerHTML = "Error: " + error;
   setInstrument("none");
   if(currentSong && currentSong.timeoutIDs){
       for (let id of currentSong.timeoutIDs)
@@ -487,7 +485,7 @@ function updateNoteDisplay() {
     if (!noteDisplay) {
         noteDisplay = document.getElementById('note-display');
     }
-    const totalNotes = allPlaybacks.length > 0 ? allPlaybacks.length : 0;
+    const totalNotes        = allPlaybacks.length > 0 ? allPlaybacks.length : 0;
     noteDisplay.textContent = `Note: ${currentNoteIndex}/${totalNotes}`;
 }
 
@@ -523,9 +521,9 @@ function populateNotesContainer(doClear = true) {
         const noteText = sources.join('');
 
         if (noteText) {
-            const noteEl = document.createElement('span');
-            noteEl.className = 'note';
-            noteEl.textContent = noteText;
+            const noteEl             = document.createElement('span');
+            noteEl.className         = 'note';
+            noteEl.textContent       = noteText;
             noteEl.dataset.noteIndex = i; // The index of the first note in the group
             
             notesContainer.appendChild(noteEl);
@@ -612,7 +610,7 @@ function playSongFromNote(song, startNoteIndex = 0) {
 
     if (!allPlaybacks || allPlaybacks.length === 0 || startNoteIndex >= allPlaybacks.length) return;
     
-    currentSong = song;
+    currentSong            = song;
     currentSong.timeoutIDs = [];
     introAnimation(song);
     
@@ -686,7 +684,7 @@ document.getElementById('play-pause-button').addEventListener('click', () => {
 /**
  * Seeks to a specific note in the song. This works whether the song is playing or paused.
  * If playing, it jumps to the new note and continues playing.
- * If paused, it jumps to the new note and remains paused, previewing the sound.
+ * If paused, it jumps to the new note and remains paused, playing all sounds at that timestamp.
  * @param {number} index - The index of the note to seek to.
  */
 function seekToNote(index) {
@@ -714,12 +712,27 @@ function seekToNote(index) {
         // If it was playing, restart the playback loop from the new index.
         playSongFromNote(currentSong, currentNoteIndex);
     } else {
-        // If it was paused or finished, update the UI to the new position and preview the note.
-        // This maintains the paused/stopped state.
+        // If it was paused or finished, update the UI and preview ALL notes in the group.
         updateNoteDisplay();
         highlightCurrentNote(currentNoteIndex);
-        const playback = allPlaybacks[currentNoteIndex];
-        playback.cmd(...playback.args);
+
+
+
+        // Get the timestamp of the group we're seeking to.
+        const targetTime = allPlaybacks[currentNoteIndex].time;
+
+        // Play the first note of the group and any subsequent notes with the same timestamp.
+        for (let i = currentNoteIndex; i < allPlaybacks.length; i++) {
+            const playback = allPlaybacks[i];
+            if (playback.time === targetTime) {
+                // This note is part of the same group, so play it.
+                playback.cmd(...playback.args);
+            } else {
+                // Since the array is sorted by time, we can stop once the time changes.
+                break;
+            }
+        }
+
     }
 }
 
@@ -730,19 +743,56 @@ document.getElementById('restart-button').addEventListener('click', () => {
     seekToNote(0);
 });
 
+
 /**
- * Event listener for the 'Previous Note' button. Seeks to the previous note.
+ * Event listener for the 'Previous Note' button. Seeks to the previous note group.
+ */
+/**
+ * Event listener for the 'Previous Note' button. Seeks to the beginning of the previous note group.
  */
 document.getElementById('prev-note-button').addEventListener('click', () => {
-    seekToNote(currentNoteIndex - 1);
+    if (!currentSong || currentNoteIndex <= 0) return; // Can't go back if at the start
+
+    const currentTime = allPlaybacks[currentNoteIndex].time;
+    let targetIndex = currentNoteIndex;
+
+    // First, find an index that is guaranteed to be in the previous time group.
+    while (targetIndex > 0 && allPlaybacks[targetIndex - 1].time === currentTime) {
+        targetIndex--;
+    }
+
+    // If we are not at the very beginning of the song, step back one more to enter the previous group.
+    if (targetIndex > 0) {
+        targetIndex--;
+        const prevGroupTime = allPlaybacks[targetIndex].time;
+
+        // Now, find the absolute beginning of that previous group.
+        while (targetIndex > 0 && allPlaybacks[targetIndex - 1].time === prevGroupTime) {
+            targetIndex--;
+        }
+        seekToNote(targetIndex);
+    }
 });
 
 /**
- * Event listener for the 'Next Note' button. Seeks to the next note.
+ * Event listener for the 'Next Note' button. Seeks to the beginning of the next note group.
  */
 document.getElementById('next-note-button').addEventListener('click', () => {
-    seekToNote(currentNoteIndex + 1);
-});
+    if (!currentSong || currentNoteIndex >= allPlaybacks.length - 1) return; // Can't go forward if at the end
+
+    const currentTime = allPlaybacks[currentNoteIndex].time;
+    let targetIndex = currentNoteIndex + 1;
+
+    // Find the first note that has a different timestamp (the start of the next group).
+    while (targetIndex < allPlaybacks.length - 1 && allPlaybacks[targetIndex].time === currentTime) {
+        targetIndex++;
+    }
+
+    // If we found a new group (i.e., the time is different from the current one)
+    if (allPlaybacks[targetIndex].time !== currentTime) {
+        seekToNote(targetIndex);
+    }
+}); 
 
 /**
  * Event listener for the 'Update Song' button. Stops any currently playing song,
@@ -756,7 +806,7 @@ document.getElementById('update-song-button').addEventListener('click', () => {
     const message = document.getElementById('song-input').value.trim();
     const song = parseMessage(message);
     if (song) {
-        updatePlayButton('⏸', 'Momentn'); // <-- FIXED
+        updatePlayButton('⏸', 'Momentn'); 
         playSongFromNote(song, 0);
     } else {
         alert("Invalid format. Please start with '!bongo ', '!bongox rtttl ', or '!bongox rttl '.");
@@ -811,7 +861,9 @@ document.getElementById("song-input").addEventListener("paste",(event)=>{
 
     
 });
-// --- END OF NEW LOGIC ---
+
+
+
 
 // ====================================================== //
 // ======================= config ======================= //
