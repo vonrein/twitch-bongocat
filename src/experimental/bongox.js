@@ -256,11 +256,13 @@ function rtttl(song)
 
                     const playSoundPlayback = preparePlaybackObject(playSynthSoundNow, time, noteFrequency);
                     playSoundPlayback.source = source;
+		    playSoundPlayback.isNoteStart = true;
                     playbacks.push(playSoundPlayback);
 
                     let muteTime = time + noteLength * 0.9; // Shorten the note slightly
                     const mutePlayback = preparePlaybackObject(muteSynthNow, muteTime);
                     mutePlayback.source = source;
+		    mutePlayback.isMute = true;
                     playbacks.push(mutePlayback);
 
                     time += noteLength;

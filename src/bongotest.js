@@ -7,6 +7,9 @@ import exampleSongs from "./exampleSongs.js"
 // ====================================================== //
 // ==================== global state ==================== //
 // ====================================================== //
+let audioContext;
+const audioBuffers = new Map();
+let soundsLoaded = false;
 const maxBpm = 800;
 const minBpm = 50;
 
@@ -27,7 +30,7 @@ var volume = 1.0;
 
 window.maxNotesPerBatch = 5;
 
-var audioContext;
+
 var mainGainNode;
 var oscillatorNode;
 var synthStarted = false;
@@ -40,6 +43,9 @@ let currentNoteIndex = 0;
 let noteDisplay;
 let navButtonsVisible = false;
 let notesContainer;
+let userMessageDisplay;
+let activeUserMessages = new Map();
+
 // ====================================================== //
 // ================== notation handlers ================= //
 // ====================================================== //
@@ -54,6 +60,51 @@ notations["bongo+"] = parseSongBongo;
 // ====================================================== //
 // =================== helper methods =================== //
 // ====================================================== //
+
+/**
+ * Loads all audio files referenced by <audio> tags into memory as AudioBuffers.
+ * @returns {Promise<void>} A promise that resolves when all sounds are loaded.
+ */
+async function loadAllSounds() {
+    if (!audioContext) {
+        throw new Error("AudioContext is not initialized.");
+    }
+
+    // Find all the audio elements in the document
+    const audioElements = document.querySelectorAll('audio[data-key]');
+    const loadPromises = [];
+
+    console.log(`Loading ${audioElements.length} sounds...`);
+
+    for (const el of audioElements) {
+        const key = el.dataset.key;
+        const src = el.src;
+        const paw = el.dataset.paw;
+        const instrument = el.dataset.instrument;
+
+        // Fetch the audio file
+        const promise = fetch(src)
+            .then(response => response.arrayBuffer()) // Get the raw data
+            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer)) // Decode it
+            .then(decodedBuffer => {
+                // Store the buffer and metadata in our map
+                audioBuffers.set(key, { 
+                    buffer: decodedBuffer, 
+                    paw: paw, 
+                    instrument: instrument 
+                });
+            })
+            .catch(err => console.error(`Failed to load sound for key ${key}:`, err));
+        
+        loadPromises.push(promise);
+    }
+
+    // Wait for all the individual load promises to finish
+    await Promise.all(loadPromises);
+    soundsLoaded = true;
+    console.log("All sounds loaded successfully!");
+}
+
 /**
  * Sets the global volume for all sounds. The value is clamped between 0.0 and 1.0.
  * @param {number | string} volumeParam - The desired volume level (0.0 to 1.0).
@@ -153,27 +204,38 @@ function getBPM(username)
 }
 
 /**
- * Plays a pre-loaded audio sample based on a command key.
- * @param {string} cmd - The key corresponding to the audio sample (e.g., '1', '2', 'a').
+ * Plays a sound from the pre-loaded AudioBuffer map.
+ * @param {string} cmd - The key corresponding to the audio sample (e.g., '1', 'A').
  * @param {number} cBpm - The current BPM, used to time the paw animation.
  */
-function playSound(cmd, cBpm)
-{
-  const audio = document.querySelector(`audio[data-key="${cmd}"]`);
-  if (!audio)
-  {
-    if (cmd != ".")
-    {
-      console.error("No audio for ", cmd);
-    }
-    return;
-  }
-  setPaw(audio.dataset.paw, cBpm);
-  setInstrument(audio.dataset.instrument);
+function playSound(cmd, cBpm) {
+    if (!soundsLoaded || !audioContext) return;
 
-  audio.currentTime = 0;
-  audio.volume = volume;
-  audio.play();
+    const soundData = audioBuffers.get(cmd);
+
+    if (!soundData) {
+        if (cmd !== ".") {
+            console.error("No audio buffer for ", cmd);
+            addUserMessage(`no-audio-${cmd}`, `Warning: No sound found for note '${cmd}'.`);
+        }
+        return;
+    }
+
+    // --- Web Audio API Playback ---
+    // 1. Create a source node
+    const source = audioContext.createBufferSource();
+    source.buffer = soundData.buffer;
+
+    // 2. Connect it to the destination (speakers)
+    source.connect(audioContext.destination);
+
+    // 3. Play it now!
+    source.start(0);
+    // --- End Playback ---
+
+    // Trigger animations using the stored metadata
+    setPaw(soundData.paw, cBpm);
+    setInstrument(soundData.instrument);
 }
 
 /**
@@ -251,6 +313,19 @@ function introAnimation(song)
  * This is a "hard reset" used when loading a new song.
  */
 function stopSong() {
+	
+	
+	const warningsToRemove = [];
+    for (const key of activeUserMessages.keys()) {
+        if (key.startsWith('no-audio-')) {
+            warningsToRemove.push(key);
+        }
+    }
+    if (warningsToRemove.length > 0) {
+        warningsToRemove.forEach(key => activeUserMessages.delete(key));
+        renderUserMessages();
+    }
+    
     // Stop all sound and scheduled notes
     if (currentSong && currentSong.timeoutIDs) {
         for (let id of currentSong.timeoutIDs) {
@@ -307,9 +382,9 @@ function endSongPlayback() {
  */
 function outroAnimation()
 {
+  removeUserMessage('runtime-error');
   document.getElementById('play-pause-button').disabled = true;
   document.getElementById("bongocat").style.left = "-800px";
-  //document.getElementById("dedications").style.visibility = "hidden";
   setInstrument("none");
   if (currentSong && currentSong.timeoutIDs) {
     for (let id of currentSong.timeoutIDs)
@@ -339,9 +414,10 @@ function outroAnimation()
  */
 function errorAnimation(error)
 {
-  document.getElementById("nametag").innerHTML = document.getElementById("nametag").innerHTML.split(" ")[0] + " crashed the cat :(";
-  //document.getElementById("dedications").style.visibility = "visible";
-  //document.getElementById("dedications").innerHTML = "Error: " + error;
+  // Use our new message system to display the error
+  addUserMessage('runtime-error', `😿 Error: ${error.message || error}`);
+
+  // The rest of the function stops playback and schedules the outro
   setInstrument("none");
   if(currentSong && currentSong.timeoutIDs){
       for (let id of currentSong.timeoutIDs)
@@ -359,7 +435,7 @@ function errorAnimation(error)
     oscillatorNode.stop();
     synthStarted = false;
   }
-  setTimeout(outroAnimation, 5000);
+  setTimeout(outroAnimation, 5000); // The outro will be called after 5 seconds
 }
 
 /**
@@ -446,6 +522,52 @@ console.log(helperMethods);
 // ===================== local play ===================== //
 // ====================================================== //
 
+/**
+ * Renders the list of active messages to the DOM.
+ */
+function renderUserMessages() {
+    if (!userMessageDisplay) return;
+
+    // Clear the container
+    userMessageDisplay.innerHTML = '';
+
+    if (activeUserMessages.size === 0) {
+        // If no messages, hide the container
+        userMessageDisplay.style.display = 'none';
+    } else {
+        // If there are messages, show the container
+        userMessageDisplay.style.display = 'flex';
+        // Create and append an element for each message
+        activeUserMessages.forEach(messageText => {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'user-message-item';
+            messageEl.textContent = messageText;
+            userMessageDisplay.appendChild(messageEl);
+        });
+    }
+}
+
+/**
+ * Adds or updates a user message and re-renders the display.
+ * @param {string} key - A unique identifier for the message (e.g., 'dirty-input').
+ * @param {string} text - The message text to display.
+ */
+function addUserMessage(key, text) {
+    activeUserMessages.set(key, text);
+    renderUserMessages();
+}
+
+/**
+ * Removes a user message by its key and re-renders the display.
+ * @param {string} key - The unique identifier of the message to remove.
+ */
+function removeUserMessage(key) {
+    if (activeUserMessages.has(key)) {
+        activeUserMessages.delete(key);
+        renderUserMessages();
+    }
+}
+
 
 function updatePlayButton(icon, text) {
   const button = document.getElementById('play-pause-button');
@@ -487,6 +609,21 @@ function updateNoteDisplay() {
     }
     const totalNotes        = allPlaybacks.length > 0 ? allPlaybacks.length : 0;
     noteDisplay.textContent = `Note: ${currentNoteIndex}/${totalNotes}`;
+}
+
+/**
+ * Shows or hides a message in the user message display area.
+ * @param {string} message - The message to show. If empty or null, the display is hidden.
+ */
+function showUserMessage(message) {
+    if (!userMessageDisplay) return;
+    if (message) {
+        userMessageDisplay.textContent = message;
+        userMessageDisplay.style.display = 'flex';
+    } else {
+        userMessageDisplay.textContent = '';
+        userMessageDisplay.style.display = 'none';
+    }
 }
 
 /**
@@ -571,6 +708,8 @@ function highlightCurrentNote(index) {
  * @returns {object|null} A song object if the message is valid, otherwise null.
  */
 function parseMessage(message) {
+	message = message.replace(/\s+/g, ' ').trim();
+
     let song = null;
     if (message.toLowerCase().startsWith('!bongo+')) message = message.replace("+","")
     if (message.toLowerCase().startsWith('!bongo ')) {
@@ -639,44 +778,53 @@ function playSongFromNote(song, startNoteIndex = 0) {
 }
 
 /**
- * Event listener for the main play/pause/resume button. Manages the player state machine.
+ * Manages the player state machine.
  */
-document.getElementById('play-pause-button').addEventListener('click', () => {
-    const button = document.getElementById('play-pause-button');
+document.getElementById('play-pause-button').addEventListener('click', async () => {
+    // 1. Initialize AudioContext on first user interaction
+    if (!audioContext) {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            alert('Web Audio API is not supported in this browser');
+            return;
+        }
+    }
 
+    // 2. Load sounds if they haven't been loaded yet
+    if (!soundsLoaded) {
+        updatePlayButton('...', 'Loading');
+        document.getElementById('play-pause-button').disabled = true;
+        await loadAllSounds();
+        document.getElementById('play-pause-button').disabled = false;
+        // The rest of the play logic will run after loading is complete
+    }
+
+    // 3. The original play/pause logic
     if (!playing) {
-        // STATE: STOPPED. Either start a new song or replay the previous one.
         const songToPlay = currentSong || parseMessage(document.getElementById('song-input').value.trim());
-
         if (songToPlay) {
-            // If we are parsing a new song, reset playback data.
             if (songToPlay !== currentSong) {
                 allPlaybacks = [];
                 currentNoteIndex = 0;
             }
-            updatePlayButton('⏸', 'Momentn');
-            toggleNavButtons(false); // Disable nav while playing.
+            updatePlayButton('⏸', 'Pause');
+            toggleNavButtons(false);
             playSongFromNote(songToPlay, currentNoteIndex);
         } else {
-            alert("Invalid format. Please start with '!bongo ', '!bongox rtttl ', or '!bongox rttl '.");
+            addUserMessage('parse-error', "Invalid song format.");
         }
     } else if (!isPaused) {
-        // STATE: PLAYING -> PAUSE.
+        // Pause logic...
         isPaused = true;
         updatePlayButton('▶', 'Resume');
-        for (let id of currentSong.timeoutIDs) {
-            clearTimeout(id);
-        }
-        if (mainGainNode && audioContext) {
-            mainGainNode.gain.cancelScheduledValues(audioContext.currentTime);
-            mainGainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        }
-        toggleNavButtons(true); // Enable nav while paused.
+        for (let id of currentSong.timeoutIDs) clearTimeout(id);
+        toggleNavButtons(true);
     } else {
-        // STATE: PAUSED -> RESUME.
+        // Resume logic...
         isPaused = false;
-        updatePlayButton('⏸', 'Momentn');
-        toggleNavButtons(false); // Disable nav while playing.
+        updatePlayButton('⏸', 'Pause');
+        toggleNavButtons(false);
         playSongFromNote(currentSong, currentNoteIndex);
     }
 });
@@ -716,23 +864,36 @@ function seekToNote(index) {
         updateNoteDisplay();
         highlightCurrentNote(currentNoteIndex);
 
-
-
-        // Get the timestamp of the group we're seeking to.
         const targetTime = allPlaybacks[currentNoteIndex].time;
+        const isRtttl = currentSong.notation === 'rtttl' || currentSong.notation === 'rttl';
 
-        // Play the first note of the group and any subsequent notes with the same timestamp.
+        // Play all events at the target timestamp
         for (let i = currentNoteIndex; i < allPlaybacks.length; i++) {
             const playback = allPlaybacks[i];
             if (playback.time === targetTime) {
-                // This note is part of the same group, so play it.
                 playback.cmd(...playback.args);
+
+                // If it's an RTTL note, we must also find and schedule its mute command.
+                if (isRtttl && playback.isNoteStart) {
+                    // Search for the corresponding mute command.
+                    for (let j = i + 1; j < allPlaybacks.length; j++) {
+                        const futurePlayback = allPlaybacks[j];
+                        if (futurePlayback.isMute) {
+                            const duration = futurePlayback.time - playback.time;
+                            const muteTimeoutId = setTimeout(() => {
+                                futurePlayback.cmd(...futurePlayback.args);
+                            }, duration);
+                            // Store this timeout so it can be cleared if the user seeks again quickly.
+                            currentSong.timeoutIDs.push(muteTimeoutId); 
+                            break; // Stop searching once we've scheduled the mute.
+                        }
+                    }
+                }
             } else {
                 // Since the array is sorted by time, we can stop once the time changes.
                 break;
             }
         }
-
     }
 }
 
@@ -745,60 +906,47 @@ document.getElementById('restart-button').addEventListener('click', () => {
 
 
 /**
- * Event listener for the 'Previous Note' button. Seeks to the previous note group.
- */
-/**
  * Event listener for the 'Previous Note' button. Seeks to the beginning of the previous note group.
  */
 document.getElementById('prev-note-button').addEventListener('click', () => {
-    if (!currentSong || currentNoteIndex <= 0) return; // Can't go back if at the start
+    if (!currentSong || currentNoteIndex <= 0) return;
 
-    const currentTime = allPlaybacks[currentNoteIndex].time;
-    let targetIndex = currentNoteIndex;
-
-    // First, find an index that is guaranteed to be in the previous time group.
-    while (targetIndex > 0 && allPlaybacks[targetIndex - 1].time === currentTime) {
-        targetIndex--;
-    }
-
-    // If we are not at the very beginning of the song, step back one more to enter the previous group.
-    if (targetIndex > 0) {
-        targetIndex--;
-        const prevGroupTime = allPlaybacks[targetIndex].time;
-
-        // Now, find the absolute beginning of that previous group.
-        while (targetIndex > 0 && allPlaybacks[targetIndex - 1].time === prevGroupTime) {
-            targetIndex--;
+    // Find the index of the previous playback object that marks the start of a note.
+    for (let i = currentNoteIndex - 1; i >= 0; i--) {
+        const playback = allPlaybacks[i];
+        if (playback.isNoteStart || allPlaybacks[i].time < allPlaybacks[currentNoteIndex].time) {
+            seekToNote(i);
+            return;
         }
-        seekToNote(targetIndex);
     }
+    // If loop finishes, seek to the very first note
+    seekToNote(0);
 });
 
 /**
  * Event listener for the 'Next Note' button. Seeks to the beginning of the next note group.
  */
 document.getElementById('next-note-button').addEventListener('click', () => {
-    if (!currentSong || currentNoteIndex >= allPlaybacks.length - 1) return; // Can't go forward if at the end
+    if (!currentSong || currentNoteIndex >= allPlaybacks.length - 1) return;
 
-    const currentTime = allPlaybacks[currentNoteIndex].time;
-    let targetIndex = currentNoteIndex + 1;
-
-    // Find the first note that has a different timestamp (the start of the next group).
-    while (targetIndex < allPlaybacks.length - 1 && allPlaybacks[targetIndex].time === currentTime) {
-        targetIndex++;
+    // Find the index of the next playback object that marks the start of a note.
+    for (let i = currentNoteIndex + 1; i < allPlaybacks.length; i++) {
+        const playback = allPlaybacks[i];
+        if (playback.isNoteStart || playback.time > allPlaybacks[currentNoteIndex].time) {
+            // Check if it's an outro animation, if so don't seek to it.
+            if (playback.cmd.name === 'outroAnimation') continue;
+            seekToNote(i);
+            return;
+        }
     }
-
-    // If we found a new group (i.e., the time is different from the current one)
-    if (allPlaybacks[targetIndex].time !== currentTime) {
-        seekToNote(targetIndex);
-    }
-}); 
-
-/**
+});/**
  * Event listener for the 'Update Song' button. Stops any currently playing song,
  * resets the player state, and then attempts to parse and play the new song from the input textarea.
  */
 document.getElementById('update-song-button').addEventListener('click', () => {
+    // 0. Clear any pending change messages
+    showUserMessage('');
+
     // 1. Stop any current song and reset the state completely.
     stopSong();
 
@@ -820,6 +968,8 @@ document.getElementById('update-song-button').addEventListener('click', () => {
  */
 document.addEventListener('DOMContentLoaded', () => {
     notesContainer = document.getElementById('notes-container');
+    userMessageDisplay = document.getElementById('user-message-display');
+
     notesContainer.addEventListener('click', (event) => {
         if (event.target && event.target.matches('.note')) {
             const index = parseInt(event.target.dataset.noteIndex);
@@ -832,7 +982,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const songSelector = document.getElementById('song-selector');
     const songInput = document.getElementById('song-input');
-    const updateButton = document.getElementById('update-song-button');
+    
+    // Add listener to show message on textarea change
+    songInput.addEventListener('input', () => {
+        showUserMessage("Song input changed — update it to test the new version.");
+    });
+
 
     // Populate the dropdown with songs from the array
     exampleSongs.forEach(song => {
@@ -843,16 +998,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add event listener to handle selection
-songSelector.addEventListener('change', (event) => {
-    const selectedNotation = event.target.value;
-    if (selectedNotation) {
-        songInput.value = selectedNotation;
-        notesContainer.innerHTML = '';
-        stopSong()
-    }
-});
+    songSelector.addEventListener('change', (event) => {
+        const selectedNotation = event.target.value;
+        if (selectedNotation) {
+            songInput.value = selectedNotation;
+            notesContainer.innerHTML = '';
+            showUserMessage(''); // Clear message on new selection
+            stopSong();
+        }
+    });
 
-document.getElementById("song-input").addEventListener("paste",(event)=>{
+    document.getElementById("song-input").addEventListener("paste",(event)=>{
 		//notesContainer.innerHTML = '';
         stopSong()
 	
