@@ -6,7 +6,7 @@ const exampleSongs = [
   },
   {
     name: "Ode to Joy",
-    notation: "!bongo 3 3 4 5 5 4 3 2 1 1 2 3 3 2 2 . 3 3 4 5 5 4 3 2 1 1 2 3 2 1 1"
+    notation: "!bongo !bongo ,150 3 3 4 5 5 4 3 2 1 1 2 3 3 2 2 . 3 3 4 5 5 4 3 2 1 1 2 3 2 1 1"
   },
   {
     name: "Mii Channel Theme (short)",
@@ -36,7 +36,7 @@ const exampleSongs = [
     "notation": "!bongo m . f . m . f . m . f . f . f . m . f . m . f . f . f . f"
   },
   {
-    "name": "Weißer Hai (WIP)",
+    "name": "White shark (WIP)",
     "notation": "!bongo ,200 vevr . . . vevr . . . ve vr ve vr ve vr ve vr z# ve vr ve vr z# bng ve vr ve vr z z 3# 5# ^w"
   },
   {
@@ -88,7 +88,7 @@ const exampleSongs = [
     "notation": "!bongo ,300 ^5# . . . ^5# . ^4# ^2# . . . . ^2# . ^4# ^4# . 6# . 6# . ^1# . 7 . . . . ^7 . ^6# . ^5# . . . ^5# . ^4# ^2# . . . . ^2# . ^4# ^4# . 6# . 6# . ^1# . 7 . . . . ^7 . ^6# . ^5# . . . ^5# . ^4# ^2# . . . . ^2# . ^4# ^4# . 6# . 6# . ^1# . 7 ."
   },
   {
-    "name": "Most masculine song on the list",
+    "name": "Sailormoon",
     "notation": "!bongo ,400 q q qx c tx c tx1 c5 qx^1 qc vuxv5 tc x2 tc xv5 c2 vux5 vucx vycx c tx3 c txv6 c3 tx6 c yxv3 tc xv7 ec xv3 cv7 wx3 cx wcxv4 ec xv6 qc xv4 cv6 x2 c xv2 c xv6 c xv2 cv6 ex2 cx ecxv5 wc x2 wc xv5 ec2 x5 c xv5 c x2 c xv5 c2 qx5 qcx qcx c tx c tx1 c5 qx^1 qc vuxv5 tc x2 tc xv5 c2 vux5 vuc vyx c tx3 c txv6 c3 tx6 tc yxv3 tc xv7 ec xv3 cv7 wx3 c wxv4 ec x1 q0 0v4 01 04 0 0v2 0 0v6 0 0v2 0v6 e02 0 e0v5 w0 02 w0 0v5 q02 e05 0 w0v5 0 02 0 0v5 02 05 0"
   },
   {
@@ -116,11 +116,11 @@ const exampleSongs = [
     "notation": "!bongo ,400 f . . . . . . . w2 r4 y#6# ^w6# . ^w6# . y#2 ^q2# . ^w#5 . ^w4 . y#2 . vy#v6# w2 r4 y#2 . y#2 . q1 y4 . ^q2# . y#2 . . . w2 r4 y#6# ^w6# . ^w6# . y#2 ^q2# . ^w#5 . ^w4 . y#2 . vy#v6# w2 r4 y#2 . y#2 . q1 y4f . ^q2# . y#6# w2 y#6# w6# y#2v6# . . 42 r y#1v6 . y# 1v6 y# y1v6 . ^q2v6# . y#2v6# . r2v6# 42 6#4 ^26# w r^26# . r^26# ^16 r q41 . r2v6# . w . 2v6# . r y#42 . y#1v6 y# . y1v6 . ^q1v6 . y#2v6# . r2v6# . 2v6# 42 w6#4 r^26# . r^26# . r^26# q^16 . r^16 w"
   },
   {
-    "name": "Barbie:",
+    "name": "Most maskulin song ever:",
     "notation": "!bongo ,350 5 3 5 ^1 6 . . . 4# 2# 4# 7 5# . 4# 3 . . 3 1# 4# . 1# . . . 4# 3 5# . 4# . 5# 3 5# ^1# 6 . . 5# 4# 2# 4# 7 5# ."
   },
   {
-    "name": "Le Chuck:",
+    "name": "Monkey Island Le Chuck theme:",
     "notation": "!bongox rtttl d=4,o=5,b=200:g,8p,8g,8a#,8p,8d6,8p,8c#6,8p,8c#6,8p,a,p,8d#,8p,8d#,8p,d#,p,8d,8p,8d,8p,d,p,g,8p,8g,8a#,8p,8d6,8p,8e6,8p,8e6,8p,c#6,p,8c,8p,8c,8p,8c,8p,8c,8p,2d,2p"
   },
   {
@@ -128,7 +128,7 @@ const exampleSongs = [
     "notation": "!bongox rtttl d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d',"
   },
   {
-    "name": "Largo Lagrande theme:",
+    "name": "Monkey Island Largo Lagrande theme:",
     "notation": "!bongox rtttl d=4,o=5,b=90:16g,16f#,16p,16g,16p,8a#,16p,16g,16f#.,16g,16p,8c#.,16p,16g,16f#.,16g,16a.,16a#,16c.6,16d6,16p,d#.6,8p,16d6,16c#.6,16d6,16p,16d6,16c#.6,16d6,16p,16d6,16f6,16p,16f6,16d6,16p,16d,16c#.,16d,16a#.,16g,16f.,8g.,8p,16d#,16p,16d#.,8d."
   },
   {
@@ -136,7 +136,7 @@ const exampleSongs = [
     "notation": "!bongox rtttl d=4,o=5,b=100:8c6,16p,16g,16c6,16d6,8d#.6,8d.6,8c6,16p,16g,16c6,16d6,g6,8p,c6,8p,d#6,16p,16c6,8c#6,16d#6,8f6,b.6,16p,8c6,16p,16g,16c6,16d6,8d#.6,8d.6,8c6,16p,16f#,16c6,16d#6,8f#.6,8f.6,8d#6,8g6,8p,8b6,8d#.7,2c7"
   },
   {
-    "name": "Scumbar Monkey Island",
+    "name": "Monkey Island Scumbar",
     "notation": "!bongox rtttl d=4,o=5,b=180:8g,8p,8g,8a,a#,8a,8g,8c6,8p,8c6,8p,c6,8a#,8a,8g,8p,8g,8a,a#,8a,8g,8d6,8p,8d6,8p,1d6,p,8d6,8p,8d6,8d#6,8f6,8p,8f6,8p,8d6,8p,8d6,8d#6,8f6,8p,8f#6,8p,g6,8d6,8p,d#6,8d6,8c6,d6,8c6,8a#,c6,8a#,8a,g.,8a,a#.,8c6,8d6,8d#6,8d6,8c6,a#,g,g.6,8d6,d#6,8d6,8c6,a#,a,a#,1g"
   },
   {
@@ -148,27 +148,27 @@ const exampleSongs = [
     "notation": "!bongox rtttl d=4,o=5,b=100:8b,8b,32b,16p,32p,16a,16b,16d6,16b,16p,16a,8b.,16p,16g,16p,8g,32g,32p,8f#,8f#,32f#,32p,8a,8a#"
   },
   {
-    "name": "Take on me:",
+    "name": "Take on me",
     "notation": "!bongox rtttl d=4,o=4,b=160:8f#5,8f#5,8f#5,8d5,8p,8b,8p,8e5,8p,8e5,8p,8e5,8g#5,8g#5,8a5,8b5,8a5,8a5,8a5,8e5,8p,8d5,8p,8f#5,8p,8f#5,8p,8f#5,8e5,8e5,8f#5,8e5,8f#5,8f#5,8f#5,8d5,8p,8b,8p,8e5,8p,8e5,8p,8e5,8g#5,8g#5,8a5,8b5,8a5,8a5,8a5,8e5,8p,8d5,8p,8f#5,8p,8f#5,8p,8f#5,8e5,8e5"
   },
   {
-    "name": "Mario underwater:",
+    "name": "Super Mario Bros underwater",
     "notation": "!bongox rtttl d=8,o=6,b=225:4d5,4e5,4f#5,4g5,4a5,4a#5,b5,b5,b5,p,b5,p,2b5,p,g5,2e.,2d#.,2e.,p,g5,a5,b5,c,d,2e.,2d#,4f,2e.,2p,p,g5,2d.,2c#.,2d.,p,g5,a5,b5,c,c#,2d.,2g5,4f,2e.,2p,p,g5,2g.,2g.,2g.,4g,4a,p,g,2f.,2f.,2f.,4f,4g,p,f,2e.,4a5,4b5,4f,e,e,4e.,b5,2c."
   },
   {
-    "name": "Mario bros 2:",
+    "name": "Super Mario Bros 2",
     "notation": "!bongox rtttl Mario2:d=4,o=5,b=125:32p,8g,16c,8e,8g.,16c,8e,16g,16c,16e,16g,8b,a,8p,16c,8g,16c,8e,8g.,16c,8e,16g,16c#,16e,16g,8b,a,8p,16b,8c6,16b,8c6,8a.,16c6,8b,16a,8g,16f#,8g,8e.,16c,8d,16e,8f,16e,8f,8b.4,16e,8d.,c"
   },
   {
-    "name": "Super mario world:",
+    "name": "Super Mario World:",
     "notation": "!bongox rtttl MarioWorld:d=4,o=5,b=125:a,8f.,16c,16d,16f,16p,f,16d,16c,16p,16f,16p,16f,16p,8c6,8a.,g,16c,a,8f.,16c,16d,16f,16p,f,16d,16c,16p,16f,16p,16a#,16a,16g,2f,16p,8a.,8f.,8c,8a.,f,16g#,16f,16c,16p,8g#.,2g,8a.,8f.,8c,8a.,f,16g#,16f,8c,2c6"
   },
   {
-    "name": "Mario winning fanfare:",
+    "name": "Super Mario winning fanfare:",
     "notation": "!bongo ,350 v5 1 3 5 ^1 ^3 ^5 . . ^3 . . v5# 1 2# 5# ^1 ^2# ^5# . . ^2# . . v7 2 4 7 ^2 ^4 ^7 . . ^7 ^7 ^7 m"
   },
   {
-    "name": "Final countdown:",
+    "name": "Final countdown",
     "notation": "!bongox rtttl d=4,o=5,b=125:p,8p,16b,16a,b,e,p,8p,16c6,16b,8c6,8b,a,p,8p,16c6,16b,c6,e,p,8p,16a,16g,8a,8g,8f#,8a,g.,16f#,16g,a.,16g,16a,8b,8a,8g,8f#,e,c6,2b.,16b,16c6,16b,16a,1b"
   },
   {
@@ -176,11 +176,11 @@ const exampleSongs = [
     "notation": "!bongox rtttl 4C2 4D2 4E3 4D2 4C2 4D3 4G2 4G2"
   },
   {
-    "name": "Doom:",
+    "name": "Doom",
     "notation": "!bongox rtttl d=4,o=5,b=112:16e4,16e4,16e,16e4,16e4,16d,16e4,16e4,16c,16e4,16e4,16a#4,16e4,16e4,16b4,16c,16e4,16e4,16e,16e4,16e4,16d,16e4,16e4,16c,16e4,16e4,a#4,16p,16e4,16e4,16e,16e4,16e4,16d,16e4,16e4,16c,16e4,16e4,16a#4,16e4,16e4,16b4,16c,16e4,16e4,16e,16e4,16e4,16d,16e4,16e4,16c,16e4,16e4,a#4,16p,16a4,16a4,16a,16a4,16a4,16g,16a4,16a4,16f,16a4,16a4,16d#,16a4,16a4,16e,16f,16a4,16a4,16a,16a4,16a4,16g,16a4,16a4,16f,16a4,16a4,d#"
   },
   {
-    "name": "Star Wars:",
+    "name": "Star Wars",
     "notation": "!bongox rtttl d=4,o=5,b=45:32p,32f#,32f#,32f#,8b.,8f#6.,32e6,32d#6,32c#6,8b6.,16f#6.,32e6,32d#6,32c#6,8b6.,16f#6.,32e6,32d#6,32e6,8c#6.,32f#,32f#,32f#,8b.,8f#6.,32e6,32d#6,32c#6,8b6.,16f#6.,32e6,32d#6,32c#6,8b6.,16f#6.,32e6,32d#6,32e6,8c#6"
   },
   {
@@ -188,15 +188,15 @@ const exampleSongs = [
     "notation": "!bongo ,300 fxq#v6 n6 bxv6 nq#6 xv6 n6 bxv6 n6 xq#v6 nq#6 bxwv6 ne6 xv6 ne6 bxr#v6 n6 xwv3 n3 bxv3 nw3 xv3 n3 bxv3 n3 xv3 n3 bxv3 n3 xv3 n3 bxv3 n3 fxwv7 n7 bxv7 nw7 xv7 n7 bxv7 n7 xr#v7 n7 bxr#v7 nt#7 xv7 nt#7 bxyv7 n7 xq#v6 n6 bxv6 nq#6 xv6 nw6 bxq#v6 nvu6 xv3 n3 bxv3 n3 xev3 n3 bxwv3 n3 fxq#v6 n6 bxv6 nq#6 xv6 n6 bxv6 n6 xq#v6 n6 bxwv6 ne6 xv6 ne6 bxev6 n6 xr#v3 n3 bxv3 n3 xev3 n3 bxv3 n3 xv3 n3 bxv3 n3 xv3 n3 bxv3 n3 xr#v7 n7 bxv7 r#7n v7x 7n v7bx 7n r#v7x 7n r#v7bx t#7n v7x t#7n yv7bx 7n #"
   },
   {
-    "name": "Star Wars Empire march:",
+    "name": "Star Wars Empire march",
     "notation": "!bongox rtttl d=4,o=5,b=112:8g,16p,8g,16p,8g,16p,16d#.,32p,32a#.,8g,16p,16d#.,32p,32a#.,g,8p,32p,8d6,16p,8d6,16p,8d6,16p,16d#.6,32p,32a#.,8f#,16p,16d#.,32p,32a#.,g,8p,32p,8g6,16p,16g.,32p,32g.,8g6,16p,16f#.6,32p,32f.6,32e.6,32d#.6,16e6,8p,16g#,32p,8c#6,16p,16c.6,32p,32b.,32a#.,32a.,16a#,8p,16d#,32p,8f#,16p,16d#.,32p,32g.,8a#,16p,16g.,32p,32a#.,d6,8p,32p,8g6,16p,16g.,32p,32g.,8g6,16p,16f#.6,32p,32f.6,32e.6,32d#.6,16e6,8p,16g#,32p,8c#6,16p,16c.6,32p,32b.,32a#.,32a.,16a#,8p,16d#,32p,8f#,16p,16d#."
   },
   {
-    "name": "Star Wars Cantina Band:",
+    "name": "Star Wars Cantina Band",
     "notation": "!bongox rtttl d=4,o=5,b=250:8a,8p,8d6,8p,8a,8p,8d6,8p,8a,8d6,8p,8a,8p,8g#,a,8a,8g#,8a,g,8f#,8g,8f#,f.,8d.,16p,p.,8a,8p,8d6,8p,8a,8p,8d6,8p,8a,8d6,8p,8a,8p,8g#,8a,8p,8g,8p,g.,8f#,8g,8p,8c6,a#,a,g"
   },
   {
-    "name": "Holzmichel:",
+    "name": "Holzmichel",
     "notation": "!bongox rtttl o=5,d=4,b=125:g#,8g#,8g,8g#,8a#,c6,8c6,8a#,g#,a#,8a#,8g#,g,c6,8c6,8a#,g#,g#,8g#,8g,8g#,8a#,c6,8c6,8a#,g#,a#,c6,a#,g#,2p,2c6,a#,g#,g#,8p,8g#,a#,a#,8p,8a#,g#,g#,p,2c6,a#,g#,g#,8p,8g#,a#,c6,a#,g#"
   },
   {
@@ -204,15 +204,15 @@ const exampleSongs = [
     "notation": "!bongox rtttl d=4,o=6,b=50:16a#.5,8c#,32a#.5,16d#.,32c#.,32d#.,8f,16c#,16a#.5,16a#.5,16c#.,16f,8a#,32g#.,32a#.,8c7,16g#,16f.,16f.,16a#.,16f,8d#,32c#.,32d#.,16f.,16c#.,16a#.5,16a#.,16c#.7,16a#.,16a#.,32g#.,32a#.,16c.7,16g#.,a#.,16a#.5,8c#,32a#.5,16d#.,32c#.,32d#.,8f,16c#,16a#.5,16a#.5,16c#.,16f,8a#,32g#.,32a#.,8c7,16g#,16f.,16f.,16a#.,16f,8d#,32c#.,32d#.,16f.,16c#.,16a#.5,16a#.,16c#.7,16a#.,16a#.,32g#.,32a#.,16c.7,16g#.,a#"
   },
   {
-    "name": "Benny hill theme:",
+    "name": "Benny hill theme",
     "notation": "!bongox rtttl d=4,o=5,b=125:8d.,16e,8g,8g,16e,16d,16a4,16b4,16d,16b4,8e,16d,16b4,16a4,16b4,8a4,16a4,16a#4,16b4,16d,16e,16d,g,p,16d,16e,16d,8g,8g,16e,16d,16a4,16b4,16d,16b4,8e,16d,16b4,16a4,16b4,8d,16d,16d,16f#,16a,8f,d,p,16d,16e,16d,8g,16g,16g,8g,16g,16g,8g,8g,16e,8e.,8c,8c,8c,8c,16e,16g,16a,16g,16a#,8g,16a,16b,16a#,16b,16a,16b,8d6,16a,16b,16d6,8b,8g,8d,16e6,16b,16b,16d,8a,8g,g"
   },
   {
-    "name": "Akte X:",
+    "name": "Akte X",
     "notation": "!bongox rtttl Xfiles:d=4,o=5,b=125:32p,e,b,a,b,d6,2b.,p,e,b,a,b,e6,2b.,p,g6,f#6,e6,d6,e6,2b.,p,g6,f#6,e6,d6,f#6,2b.,p,e,b,a,b,d6,2b.,p,e,b,a,b,e6,2b.,p,e6,2b."
   },
   {
-    "name": "Smoke on the water:",
+    "name": "Smoke on the water",
     "notation": "!bongox rtttl d=4,o=5,b=112:c,d#,f.,c,d#,8f#,f,p,c,d#,f.,d#,c,2p,8p,c,d#,f.,c,d#,8f#,f,p,c,d#,f.,d#,c,p"
   },
   {
@@ -220,7 +220,7 @@ const exampleSongs = [
     "notation": "!bongox rtttl LeisureSuit:d=16,o=6,b=56:f.5,f#.5,g.5,g#5,32a#5,f5,g#.5,a#.5,32f5,g#5,32a#5,g#5,8c#.,a#5,32c#,a5,a#.5,c#.,32a5,a#5,32c#,d#,8e,c#.,f.,f.,f.,f.,f,32e,d#,8d,a#.5,e,32f,e,32f,c#,d#.,c#"
   },
   {
-    "name": "Sound of silence:",
+    "name": "Sound of silence",
     "notation": "!bongox rtttl d=4,o=6,b=40:32d#.5,32d#.5,32f#.5,32f#.5,32a#.5,32a#.5,g#5,32c#.5,32c#.5,32c#.5,32f.5,32f.5,32g#.5,32g#.5,f#5,32f#.5,32f#.5,32f#.5,32a#.5,32a#.5,32c#.,32c#.,8d#.,c#,32f#.5,32f#.5,32a#.5,32a#.5,32c#.,32c#.,8d#.,c#,16f#.5,16f#.5,32d#.,d#,32d#.,32f.,32f#.,8f#,32f.,8d#,c#,32d#.,32c#.,a#5,16f#.5,16f#.5,16f#.5,c#,32f.5,32f#.5,d#.5"
   },
   {
