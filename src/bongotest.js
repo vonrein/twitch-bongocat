@@ -216,7 +216,7 @@ function playSound(cmd, cBpm) {
     if (!soundData) {
         if (cmd !== ".") {
             console.error("No audio buffer for ", cmd);
-            addUserMessage(`no-audio-${cmd}`, `Warning: No sound found for note '${cmd}'.`);
+            addUserMessage(`no-audio-${cmd}`, `No sound found for note '${cmd}'.`);
         }
         return;
     }
@@ -733,7 +733,11 @@ function parseMessage(message) {
  * @param {number} [startNoteIndex=0] - The index of the note in the playback queue to start from.
  */
 function playSongFromNote(song, startNoteIndex = 0) {
-    if (startNoteIndex === 0 && allPlaybacks.length === 0) {
+    const isRtttl = song.notation === 'rtttl' || song.notation === 'rttl';
+    
+    // ** THE FIX IS HERE **
+    // If starting from the beginning AND (it's the first play OR it's an RTTL song that needs re-initialization)
+    if (startNoteIndex === 0 && (allPlaybacks.length === 0 || isRtttl)) {
         let handler = notations[song.notation];
         if (song.extension && !disableExtensions) {
             handler = extensionFeatures[song.notation] || handler;
@@ -765,10 +769,8 @@ function playSongFromNote(song, startNoteIndex = 0) {
             highlightCurrentNote(currentNoteIndex);
             updateNoteDisplay();
             if (i + 1 >= allPlaybacks.length) {
-                
                 document.getElementById('play-pause-button').disabled = true;
-                
-                outroAnimation()
+                outroAnimation();
             }
         }, delay);
         currentSong.timeoutIDs.push(timeoutId);
@@ -777,18 +779,21 @@ function playSongFromNote(song, startNoteIndex = 0) {
     highlightCurrentNote(startNoteIndex);
 }
 
-/**
- * Manages the player state machine.
- */
+
 document.getElementById('play-pause-button').addEventListener('click', async () => {
     // 1. Initialize AudioContext on first user interaction
     if (!audioContext) {
         try {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
         } catch (e) {
-            alert('Web Audio API is not supported in this browser');
+            addUserMessage('error-no-audio-api', 'Error: Web Audio API is not supported in this browser.');
             return;
         }
+    }
+
+    // Resume AudioContext if it was suspended
+    if (audioContext.state === 'suspended') {
+        await audioContext.resume();
     }
 
     // 2. Load sounds if they haven't been loaded yet
@@ -797,11 +802,12 @@ document.getElementById('play-pause-button').addEventListener('click', async () 
         document.getElementById('play-pause-button').disabled = true;
         await loadAllSounds();
         document.getElementById('play-pause-button').disabled = false;
-        // The rest of the play logic will run after loading is complete
+        // The rest of the play logic will run after this block
     }
 
     // 3. The original play/pause logic
     if (!playing) {
+        removeUserMessage('parse-error');
         const songToPlay = currentSong || parseMessage(document.getElementById('song-input').value.trim());
         if (songToPlay) {
             if (songToPlay !== currentSong) {
@@ -812,22 +818,31 @@ document.getElementById('play-pause-button').addEventListener('click', async () 
             toggleNavButtons(false);
             playSongFromNote(songToPlay, currentNoteIndex);
         } else {
-            addUserMessage('parse-error', "Invalid song format.");
+            addUserMessage('parse-error', "Invalid song format. Please start with '!bongo' or '!bongox rtttl'.");
         }
     } else if (!isPaused) {
-        // Pause logic...
+        // --- PAUSE LOGIC ---
         isPaused = true;
         updatePlayButton('▶', 'Resume');
+        // Clear all scheduled setTimeout calls
         for (let id of currentSong.timeoutIDs) clearTimeout(id);
+        
+        // **CRITICAL FIX**: Immediately cancel scheduled audio events and mute the synth
+        if (mainGainNode && audioContext) {
+            mainGainNode.gain.cancelScheduledValues(audioContext.currentTime);
+            mainGainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        }
+        
         toggleNavButtons(true);
     } else {
-        // Resume logic...
+        // --- RESUME LOGIC ---
         isPaused = false;
         updatePlayButton('⏸', 'Pause');
         toggleNavButtons(false);
         playSongFromNote(currentSong, currentNoteIndex);
     }
 });
+
 
 /**
  * Seeks to a specific note in the song. This works whether the song is playing or paused.
