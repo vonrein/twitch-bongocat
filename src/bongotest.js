@@ -103,6 +103,9 @@ async function loadAllSounds() {
     await Promise.all(loadPromises);
     soundsLoaded = true;
     console.log("All sounds loaded successfully!");
+    
+    const updateBtn = document.getElementById('update-song-button');
+if (updateBtn) updateBtn.disabled = false;
 }
 
 /**
@@ -982,6 +985,12 @@ document.getElementById('update-song-button').addEventListener('click', () => {
  * Main DOMContentLoaded listener. Initializes UI components and sets up event handlers.
  */
 document.addEventListener('DOMContentLoaded', () => {
+	const updateBtn = document.getElementById('update-song-button');
+    updateBtn.disabled = true;
+
+    notesContainer = document.getElementById('notes-container');
+    userMessageDisplay = document.getElementById('user-message-display');
+	
     notesContainer = document.getElementById('notes-container');
     userMessageDisplay = document.getElementById('user-message-display');
 
