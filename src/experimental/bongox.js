@@ -134,7 +134,7 @@ function rtttl(song)
     }
 
     let regex = /(?:(\w)=(\d+))|(?:(\d+)?(a#|ab|a|b|h|c#|c|db|d#|d|eb|e#|e|fb|f#|f|gb|g#|g|p)(\.)?(\d)?(\.)?)/gi; //rtttl notation converted to regex
-    
+
     let time = 0; //current time in milliseconds
     let playbacks = [];
     prepareSynth("square");
@@ -249,20 +249,20 @@ function rtttl(song)
                 {
                     let paws = ["paw-left", "paw-right"];
                     let rnd = Math.random() > 0.5 ? 1 : 0;
-                    
+
                     const pawPlayback = preparePlaybackObject(setPaw, time, paws[rnd], bpm * (noteDuration / 4));
                     pawPlayback.source = source;
                     playbacks.push(pawPlayback);
 
                     const playSoundPlayback = preparePlaybackObject(playSynthSoundNow, time, noteFrequency);
                     playSoundPlayback.source = source;
-		    playSoundPlayback.isNoteStart = true;
+                    playSoundPlayback.isNoteStart = true;
                     playbacks.push(playSoundPlayback);
 
                     let muteTime = time + noteLength * 0.9; // Shorten the note slightly
                     const mutePlayback = preparePlaybackObject(muteSynthNow, muteTime);
                     mutePlayback.source = source;
-		    mutePlayback.isMute = true;
+                    mutePlayback.isMute = true;
                     playbacks.push(mutePlayback);
 
                     time += noteLength;

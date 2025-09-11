@@ -66,46 +66,46 @@ notations["bongo+"] = parseSongBongo;
  * @returns {Promise<void>} A promise that resolves when all sounds are loaded.
  */
 async function loadAllSounds() {
-    if (!audioContext) {
-        throw new Error("AudioContext is not initialized.");
-    }
+  if (!audioContext) {
+    throw new Error("AudioContext is not initialized.");
+  }
 
-    // Find all the audio elements in the document
-    const audioElements = document.querySelectorAll('audio[data-key]');
-    const loadPromises = [];
+  // Find all the audio elements in the document
+  const audioElements = document.querySelectorAll('audio[data-key]');
+  const loadPromises = [];
 
-    console.log(`Loading ${audioElements.length} sounds...`);
+  console.log(`Loading ${audioElements.length} sounds...`);
 
-    for (const el of audioElements) {
-        const key = el.dataset.key;
-        const src = el.src;
-        const paw = el.dataset.paw;
-        const instrument = el.dataset.instrument;
+  for (const el of audioElements) {
+    const key = el.dataset.key;
+    const src = el.src;
+    const paw = el.dataset.paw;
+    const instrument = el.dataset.instrument;
 
-        // Fetch the audio file
-        const promise = fetch(src)
-            .then(response => response.arrayBuffer()) // Get the raw data
-            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer)) // Decode it
-            .then(decodedBuffer => {
-                // Store the buffer and metadata in our map
-                audioBuffers.set(key, { 
-                    buffer: decodedBuffer, 
-                    paw: paw, 
-                    instrument: instrument 
-                });
-            })
-            .catch(err => console.error(`Failed to load sound for key ${key}:`, err));
-        
-        loadPromises.push(promise);
-    }
+    // Fetch the audio file
+    const promise = fetch(src)
+    .then(response => response.arrayBuffer()) // Get the raw data
+    .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer)) // Decode it
+    .then(decodedBuffer => {
+      // Store the buffer and metadata in our map
+      audioBuffers.set(key, {
+        buffer: decodedBuffer,
+        paw: paw,
+        instrument: instrument
+      });
+    })
+    .catch(err => console.error(`Failed to load sound for key ${key}:`, err));
 
-    // Wait for all the individual load promises to finish
-    await Promise.all(loadPromises);
-    soundsLoaded = true;
-    console.log("All sounds loaded successfully!");
-    
-    const updateBtn = document.getElementById('update-song-button');
-if (updateBtn) updateBtn.disabled = false;
+    loadPromises.push(promise);
+  }
+
+  // Wait for all the individual load promises to finish
+  await Promise.all(loadPromises);
+  soundsLoaded = true;
+  console.log("All sounds loaded successfully!");
+
+  const updateBtn = document.getElementById('update-song-button');
+  if (updateBtn) updateBtn.disabled = false;
 }
 
 /**
@@ -212,33 +212,33 @@ function getBPM(username)
  * @param {number} cBpm - The current BPM, used to time the paw animation.
  */
 function playSound(cmd, cBpm) {
-    if (!soundsLoaded || !audioContext) return;
+  if (!soundsLoaded || !audioContext) return;
 
-    const soundData = audioBuffers.get(cmd);
+  const soundData = audioBuffers.get(cmd);
 
-    if (!soundData) {
-        if (cmd !== ".") {
-            console.error("No audio buffer for ", cmd);
-            addUserMessage(`no-audio-${cmd}`, `No sound found for note '${cmd}'.`);
-        }
-        return;
+  if (!soundData) {
+    if (cmd !== ".") {
+      console.error("No audio buffer for ", cmd);
+      addUserMessage(`no-audio-${cmd}`, `No sound found for note '${cmd}'.`);
     }
+    return;
+  }
 
-    // --- Web Audio API Playback ---
-    // 1. Create a source node
-    const source = audioContext.createBufferSource();
-    source.buffer = soundData.buffer;
+  // --- Web Audio API Playback ---
+  // 1. Create a source node
+  const source = audioContext.createBufferSource();
+  source.buffer = soundData.buffer;
 
-    // 2. Connect it to the destination (speakers)
-    source.connect(audioContext.destination);
+  // 2. Connect it to the destination (speakers)
+  source.connect(audioContext.destination);
 
-    // 3. Play it now!
-    source.start(0);
-    // --- End Playback ---
+  // 3. Play it now!
+  source.start(0);
+  // --- End Playback ---
 
-    // Trigger animations using the stored metadata
-    setPaw(soundData.paw, cBpm);
-    setInstrument(soundData.instrument);
+  // Trigger animations using the stored metadata
+  setPaw(soundData.paw, cBpm);
+  setInstrument(soundData.instrument);
 }
 
 /**
@@ -249,7 +249,7 @@ function playSound(cmd, cBpm) {
 function prepareSynth(type)
 {
   if (audioContext) {
-      audioContext.close();
+    audioContext.close();
   }
   audioContext = new AudioContext();
   window.audioContext = audioContext;
@@ -316,50 +316,50 @@ function introAnimation(song)
  * This is a "hard reset" used when loading a new song.
  */
 function stopSong() {
-	
-	
-	const warningsToRemove = [];
-    for (const key of activeUserMessages.keys()) {
-        if (key.startsWith('no-audio-')) {
-            warningsToRemove.push(key);
-        }
-    }
-    if (warningsToRemove.length > 0) {
-        warningsToRemove.forEach(key => activeUserMessages.delete(key));
-        renderUserMessages();
-    }
-    
-    // Stop all sound and scheduled notes
-    if (currentSong && currentSong.timeoutIDs) {
-        for (let id of currentSong.timeoutIDs) {
-            clearTimeout(id);
-        }
-    }
-    if (mainGainNode) {
-        mainGainNode.gain.value = 0;
-    }
-    if (oscillatorNode && synthStarted) {
-        oscillatorNode.stop();
-        synthStarted = false;
-    }
 
-    // Reset state variables
-    playing = false;
-    isPaused = false;
-    currentSong = null;
-    allPlaybacks = [];
-    currentNoteIndex = 0;
-    setBPM(128); 
-    
-    // Reset UI
-    document.getElementById("restart-button").disabled = true; // Disable Restart button
-    toggleNavButtons(false);
-    updateNoteDisplay();
-    populateNotesContainer(false); //don't clear notes container
-    const playPauseBtn = document.getElementById('play-pause-button');
-    updatePlayButton('▶', 'Play');
-    setInstrument("none");
-    playPauseBtn.disabled = false; // Ensure it's enabled after stopping
+
+  const warningsToRemove = [];
+  for (const key of activeUserMessages.keys()) {
+    if (key.startsWith('no-audio-')) {
+      warningsToRemove.push(key);
+    }
+  }
+  if (warningsToRemove.length > 0) {
+    warningsToRemove.forEach(key => activeUserMessages.delete(key));
+    renderUserMessages();
+  }
+
+  // Stop all sound and scheduled notes
+  if (currentSong && currentSong.timeoutIDs) {
+    for (let id of currentSong.timeoutIDs) {
+      clearTimeout(id);
+    }
+  }
+  if (mainGainNode) {
+    mainGainNode.gain.value = 0;
+  }
+  if (oscillatorNode && synthStarted) {
+    oscillatorNode.stop();
+    synthStarted = false;
+  }
+
+  // Reset state variables
+  playing = false;
+  isPaused = false;
+  currentSong = null;
+  allPlaybacks = [];
+  currentNoteIndex = 0;
+  setBPM(128);
+
+  // Reset UI
+  document.getElementById("restart-button").disabled = true; // Disable Restart button
+  toggleNavButtons(false);
+  updateNoteDisplay();
+  populateNotesContainer(false); //don't clear notes container
+  const playPauseBtn = document.getElementById('play-pause-button');
+  updatePlayButton('▶', 'Play');
+  setInstrument("none");
+  playPauseBtn.disabled = false; // Ensure it's enabled after stopping
 }
 
 /**
@@ -367,16 +367,16 @@ function stopSong() {
  * This is a "soft reset" that keeps the song data available for replay.
  */
 function endSongPlayback() {
-    playing = false;
-    isPaused = false;
-    currentNoteIndex = 0; // Reset to the beginning for replay
+  playing = false;
+  isPaused = false;
+  currentNoteIndex = 0; // Reset to the beginning for replay
 
-    // Update UI to reflect the "stopped but ready" state
-    updatePlayButton('▶', 'Play');
-    document.getElementById('play-pause-button').disabled = false; // Re-enable the play button
-    toggleNavButtons(true); // Enable seeking/navigating the finished song
-    updateNoteDisplay(); // Update to show 0/total
-    highlightCurrentNote(0); // Highlight the first note
+  // Update UI to reflect the "stopped but ready" state
+  updatePlayButton('▶', 'Play');
+  document.getElementById('play-pause-button').disabled = false; // Re-enable the play button
+  toggleNavButtons(true); // Enable seeking/navigating the finished song
+  updateNoteDisplay(); // Update to show 0/total
+  highlightCurrentNote(0); // Highlight the first note
 }
 
 /**
@@ -423,10 +423,10 @@ function errorAnimation(error)
   // The rest of the function stops playback and schedules the outro
   setInstrument("none");
   if(currentSong && currentSong.timeoutIDs){
-      for (let id of currentSong.timeoutIDs)
-      {
-        clearTimeout(id);
-      }
+    for (let id of currentSong.timeoutIDs)
+    {
+      clearTimeout(id);
+    }
   }
 
   if (mainGainNode)
@@ -529,25 +529,25 @@ console.log(helperMethods);
  * Renders the list of active messages to the DOM.
  */
 function renderUserMessages() {
-    if (!userMessageDisplay) return;
+  if (!userMessageDisplay) return;
 
-    // Clear the container
-    userMessageDisplay.innerHTML = '';
+  // Clear the container
+  userMessageDisplay.innerHTML = '';
 
-    if (activeUserMessages.size === 0) {
-        // If no messages, hide the container
-        userMessageDisplay.style.display = 'none';
-    } else {
-        // If there are messages, show the container
-        userMessageDisplay.style.display = 'flex';
-        // Create and append an element for each message
-        activeUserMessages.forEach(messageText => {
-            const messageEl = document.createElement('div');
-            messageEl.className = 'user-message-item';
-            messageEl.textContent = messageText;
-            userMessageDisplay.appendChild(messageEl);
-        });
-    }
+  if (activeUserMessages.size === 0) {
+    // If no messages, hide the container
+    userMessageDisplay.style.display = 'none';
+  } else {
+    // If there are messages, show the container
+    userMessageDisplay.style.display = 'flex';
+    // Create and append an element for each message
+    activeUserMessages.forEach(messageText => {
+      const messageEl = document.createElement('div');
+      messageEl.className = 'user-message-item';
+      messageEl.textContent = messageText;
+      userMessageDisplay.appendChild(messageEl);
+    });
+  }
 }
 
 /**
@@ -556,8 +556,8 @@ function renderUserMessages() {
  * @param {string} text - The message text to display.
  */
 function addUserMessage(key, text) {
-    activeUserMessages.set(key, text);
-    renderUserMessages();
+  activeUserMessages.set(key, text);
+  renderUserMessages();
 }
 
 /**
@@ -565,10 +565,10 @@ function addUserMessage(key, text) {
  * @param {string} key - The unique identifier of the message to remove.
  */
 function removeUserMessage(key) {
-    if (activeUserMessages.has(key)) {
-        activeUserMessages.delete(key);
-        renderUserMessages();
-    }
+  if (activeUserMessages.has(key)) {
+    activeUserMessages.delete(key);
+    renderUserMessages();
+  }
 }
 
 
@@ -587,31 +587,31 @@ function updatePlayButton(icon, text) {
  * @param {boolean} enable - True to enable the buttons, false to disable.
  */
 function toggleNavButtons(enable) {
-    const prevBtn    = document.getElementById('prev-note-button');
-    const nextBtn    = document.getElementById('next-note-button');
-    const noteDisp   = document.getElementById('note-display');
+  const prevBtn    = document.getElementById('prev-note-button');
+  const nextBtn    = document.getElementById('next-note-button');
+  const noteDisp   = document.getElementById('note-display');
 
-    if (enable) {
-        prevBtn.disabled    = false;
-        nextBtn.disabled    = false;
-        noteDisp.classList.remove('disabled');
-    } else {
-        prevBtn.disabled    = true;
-        nextBtn.disabled    = true;
-        noteDisp.classList.add('disabled');
-    }
-    navButtonsVisible = enable;
+  if (enable) {
+    prevBtn.disabled    = false;
+    nextBtn.disabled    = false;
+    noteDisp.classList.remove('disabled');
+  } else {
+    prevBtn.disabled    = true;
+    nextBtn.disabled    = true;
+    noteDisp.classList.add('disabled');
+  }
+  navButtonsVisible = enable;
 }
 
 /**
  * Updates the note display element to show the current note index and total notes.
  */
 function updateNoteDisplay() {
-    if (!noteDisplay) {
-        noteDisplay = document.getElementById('note-display');
-    }
-    const totalNotes        = allPlaybacks.length > 0 ? allPlaybacks.length : 0;
-    noteDisplay.textContent = `Note: ${currentNoteIndex}/${totalNotes}`;
+  if (!noteDisplay) {
+    noteDisplay = document.getElementById('note-display');
+  }
+  const totalNotes        = allPlaybacks.length > 0 ? allPlaybacks.length : 0;
+  noteDisplay.textContent = `Note: ${currentNoteIndex}/${totalNotes}`;
 }
 
 /**
@@ -619,14 +619,14 @@ function updateNoteDisplay() {
  * @param {string} message - The message to show. If empty or null, the display is hidden.
  */
 function showUserMessage(message) {
-    if (!userMessageDisplay) return;
-    if (message) {
-        userMessageDisplay.textContent = message;
-        userMessageDisplay.style.display = 'flex';
-    } else {
-        userMessageDisplay.textContent = '';
-        userMessageDisplay.style.display = 'none';
-    }
+  if (!userMessageDisplay) return;
+  if (message) {
+    userMessageDisplay.textContent = message;
+    userMessageDisplay.style.display = 'flex';
+  } else {
+    userMessageDisplay.textContent = '';
+    userMessageDisplay.style.display = 'none';
+  }
 }
 
 /**
@@ -634,45 +634,52 @@ function showUserMessage(message) {
  * grouping notes that have the same timestamp.
  */
 function populateNotesContainer(doClear = true) {
-    if (!notesContainer) {
-        notesContainer = document.getElementById('notes-container');
+  if (!notesContainer) {
+    notesContainer = document.getElementById('notes-container');
+  }
+  if(doClear) notesContainer.innerHTML = '';
+  if (allPlaybacks.length === 0) return;
+
+  let i = 0;
+  while (i < allPlaybacks.length) {
+    const firstPlaybackInGroup = allPlaybacks[i];
+    const group = [firstPlaybackInGroup];
+    let j = i + 1;
+
+    // Group all playback objects that have the same timestamp
+    while (j < allPlaybacks.length && allPlaybacks[j].time === firstPlaybackInGroup.time) {
+      group.push(allPlaybacks[j]);
+      j++;
     }
-    if(doClear) notesContainer.innerHTML = '';
-    if (allPlaybacks.length === 0) return;
 
-    let i = 0;
-    while (i < allPlaybacks.length) {
-        const firstPlaybackInGroup = allPlaybacks[i];
-        const group = [firstPlaybackInGroup];
-        let j = i + 1;
-        
-        // Group all playback objects that have the same timestamp
-        while (j < allPlaybacks.length && allPlaybacks[j].time === firstPlaybackInGroup.time) {
-            group.push(allPlaybacks[j]);
-            j++;
-        }
+    // Get the source text from each note in the group and join them
+    let sources = group.map(p => {
+      const source = p.source || p.args[0];
+      return typeof source === 'string' ? source : '';
+    }).filter(s => s !== '' && s !== 'nokia3210'); // Also filter out the instrument name
 
-        // Get the source text from each note in the group and join them
-        const sources = group.map(p => {
-            const source = p.source || p.args[0];
-            return typeof source === 'string' ? source : '';
-        }).filter(s => s !== '');
-        
-        const noteText = sources.join('');
+    const isRtttl = currentSong && (currentSong.notation === 'rtttl' || currentSong.notation === 'rttl');
 
-        if (noteText) {
-            const noteEl             = document.createElement('span');
-            noteEl.className         = 'note';
-            noteEl.textContent       = noteText;
-            noteEl.dataset.noteIndex = i; // The index of the first note in the group
-            
-            notesContainer.appendChild(noteEl);
-            // Add a space to separate it from the next note group
-            notesContainer.appendChild(document.createTextNode(' '));
-        }
-        
-        i = j;
+    // If it's an RTTTL song, filter the sources to keep only unique note strings
+    if (isRtttl) {
+      sources = sources.filter((item, index, self) => self.indexOf(item) === index);
     }
+
+    const noteText = sources.join('');
+
+    if (noteText) {
+      const noteEl             = document.createElement('span');
+      noteEl.className         = 'note';
+      noteEl.textContent       = noteText;
+      noteEl.dataset.noteIndex = i; // The index of the first note in the group
+
+      notesContainer.appendChild(noteEl);
+      // Add a space to separate it from the next note group
+      notesContainer.appendChild(document.createTextNode(' '));
+    }
+
+    i = j;
+  }
 }
 
 /**
@@ -680,29 +687,29 @@ function populateNotesContainer(doClear = true) {
  * @param {number} index - The index of the note that is currently playing.
  */
 function highlightCurrentNote(index) {
-    // Ensure the index is valid
-    if (index < 0 || index >= allPlaybacks.length) return;
+  // Ensure the index is valid
+  if (index < 0 || index >= allPlaybacks.length) return;
 
-    // Use the timestamp of the current note to identify its group
-    const currentTime = allPlaybacks[index].time;
-    
-    const noteElements = notesContainer.querySelectorAll('.note');
+  // Use the timestamp of the current note to identify its group
+  const currentTime = allPlaybacks[index].time;
 
-    noteElements.forEach(noteEl => {
-        // Get the index of the first note in the group from the data attribute
-        const firstNoteInGroupIndex = parseInt(noteEl.dataset.noteIndex);
-        
-        // Find the timestamp of that group
-        const groupTime = allPlaybacks[firstNoteInGroupIndex].time;
+  const noteElements = notesContainer.querySelectorAll('.note');
 
-        // If the group's time matches the currently playing note's time, highlight it
-        if (groupTime === currentTime) {
-            noteEl.classList.add('highlight');
-            noteEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } else {
-            noteEl.classList.remove('highlight');
-        }
-    });
+  noteElements.forEach(noteEl => {
+    // Get the index of the first note in the group from the data attribute
+    const firstNoteInGroupIndex = parseInt(noteEl.dataset.noteIndex);
+
+    // Find the timestamp of that group
+    const groupTime = allPlaybacks[firstNoteInGroupIndex].time;
+
+    // If the group's time matches the currently playing note's time, highlight it
+    if (groupTime === currentTime) {
+      noteEl.classList.add('highlight');
+      noteEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      noteEl.classList.remove('highlight');
+    }
+  });
 }
 
 /**
@@ -711,19 +718,19 @@ function highlightCurrentNote(index) {
  * @returns {object|null} A song object if the message is valid, otherwise null.
  */
 function parseMessage(message) {
-	message = message.replace(/\s+/g, ' ').trim();
+  message = message.replace(/\s+/g, ' ').trim();
 
-    let song = null;
-    if (message.toLowerCase().startsWith('!bongo+')) message = message.replace("+","")
+  let song = null;
+  if (message.toLowerCase().startsWith('!bongo+')) message = message.replace("+","")
     if (message.toLowerCase().startsWith('!bongo ')) {
-        const notes = message.substring(7);
-        song = { performer: 'Anon', notes: notes, notation: 'bongo' };
+      const notes = message.substring(7);
+      song = { performer: 'Anon', notes: notes, notation: 'bongo' };
     } else if (message.toLowerCase().startsWith('!bongox rtttl ')) {
-        const notes = message.substring(14);
-        song = { performer: 'Tester', notes: notes, notation: 'rtttl', "experimental": true };
+      const notes = message.substring(14);
+      song = { performer: 'Tester', notes: notes, notation: 'rtttl', "experimental": true };
     } else if (message.toLowerCase().startsWith('!bongox rttl ')) {
-        const notes = message.substring(13);
-        song = { performer: 'Tester', notes: notes, notation: 'rttl', "experimental": true };
+      const notes = message.substring(13);
+      song = { performer: 'Tester', notes: notes, notation: 'rttl', "experimental": true };
     }
     return song;
 }
@@ -736,114 +743,114 @@ function parseMessage(message) {
  * @param {number} [startNoteIndex=0] - The index of the note in the playback queue to start from.
  */
 function playSongFromNote(song, startNoteIndex = 0) {
-    const isRtttl = song.notation === 'rtttl' || song.notation === 'rttl';
-    
-    // ** THE FIX IS HERE **
-    // If starting from the beginning AND (it's the first play OR it's an RTTL song that needs re-initialization)
-    if (startNoteIndex === 0 && (allPlaybacks.length === 0 || isRtttl)) {
-        let handler = notations[song.notation];
-        if (song.extension && !disableExtensions) {
-            handler = extensionFeatures[song.notation] || handler;
-        }
-        if (song.experimental && !disableExperiments) {
-            handler = experimentalFeatures[song.notation] || handler;
-        }
-        if (handler) {
-            allPlaybacks = handler(song);
-            populateNotesContainer();
-        }
+  const isRtttl = song.notation === 'rtttl' || song.notation === 'rttl';
+
+  // ** THE FIX IS HERE **
+  // If starting from the beginning AND (it's the first play OR it's an RTTL song that needs re-initialization)
+  if (startNoteIndex === 0 && (allPlaybacks.length === 0 || isRtttl)) {
+    let handler = notations[song.notation];
+    if (song.extension && !disableExtensions) {
+      handler = extensionFeatures[song.notation] || handler;
     }
-
-    if (!allPlaybacks || allPlaybacks.length === 0 || startNoteIndex >= allPlaybacks.length) return;
-    
-    currentSong            = song;
-    currentSong.timeoutIDs = [];
-    introAnimation(song);
-    
-    const startTime = allPlaybacks[startNoteIndex].time;
-
-    for (let i = startNoteIndex; i < allPlaybacks.length; i++) {
-        const playback = allPlaybacks[i];
-        const delay = playback.time - startTime;
-
-        const timeoutId = setTimeout(() => {
-            playback.cmd(...playback.args);
-            currentNoteIndex = i;
-            highlightCurrentNote(currentNoteIndex);
-            updateNoteDisplay();
-            if (i + 1 >= allPlaybacks.length) {
-                document.getElementById('play-pause-button').disabled = true;
-                outroAnimation();
-            }
-        }, delay);
-        currentSong.timeoutIDs.push(timeoutId);
+    if (song.experimental && !disableExperiments) {
+      handler = experimentalFeatures[song.notation] || handler;
     }
-    updateNoteDisplay();
-    highlightCurrentNote(startNoteIndex);
+    if (handler) {
+      allPlaybacks = handler(song);
+      populateNotesContainer();
+    }
+  }
+
+  if (!allPlaybacks || allPlaybacks.length === 0 || startNoteIndex >= allPlaybacks.length) return;
+
+  currentSong            = song;
+  currentSong.timeoutIDs = [];
+  introAnimation(song);
+
+  const startTime = allPlaybacks[startNoteIndex].time;
+
+  for (let i = startNoteIndex; i < allPlaybacks.length; i++) {
+    const playback = allPlaybacks[i];
+    const delay = playback.time - startTime;
+
+    const timeoutId = setTimeout(() => {
+      playback.cmd(...playback.args);
+      currentNoteIndex = i;
+      highlightCurrentNote(currentNoteIndex);
+      updateNoteDisplay();
+      if (i + 1 >= allPlaybacks.length) {
+        document.getElementById('play-pause-button').disabled = true;
+        outroAnimation();
+      }
+    }, delay);
+    currentSong.timeoutIDs.push(timeoutId);
+  }
+  updateNoteDisplay();
+  highlightCurrentNote(startNoteIndex);
 }
 
 
 document.getElementById('play-pause-button').addEventListener('click', async () => {
-    // 1. Initialize AudioContext on first user interaction
-    if (!audioContext) {
-        try {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        } catch (e) {
-            addUserMessage('error-no-audio-api', 'Error: Web Audio API is not supported in this browser.');
-            return;
-        }
+  // 1. Initialize AudioContext on first user interaction
+  if (!audioContext) {
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      addUserMessage('error-no-audio-api', 'Error: Web Audio API is not supported in this browser.');
+      return;
     }
+  }
 
-    // Resume AudioContext if it was suspended
-    if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-    }
+  // Resume AudioContext if it was suspended
+  if (audioContext.state === 'suspended') {
+    await audioContext.resume();
+  }
 
-    // 2. Load sounds if they haven't been loaded yet
-    if (!soundsLoaded) {
-        updatePlayButton('...', 'Loading');
-        document.getElementById('play-pause-button').disabled = true;
-        await loadAllSounds();
-        document.getElementById('play-pause-button').disabled = false;
-        // The rest of the play logic will run after this block
-    }
+  // 2. Load sounds if they haven't been loaded yet
+  if (!soundsLoaded) {
+    updatePlayButton('...', 'Loading');
+    document.getElementById('play-pause-button').disabled = true;
+    await loadAllSounds();
+    document.getElementById('play-pause-button').disabled = false;
+    // The rest of the play logic will run after this block
+  }
 
-    // 3. The original play/pause logic
-    if (!playing) {
-        removeUserMessage('parse-error');
-        const songToPlay = currentSong || parseMessage(document.getElementById('song-input').value.trim());
-        if (songToPlay) {
-            if (songToPlay !== currentSong) {
-                allPlaybacks = [];
-                currentNoteIndex = 0;
-            }
-            updatePlayButton('⏸', 'Pause');
-            toggleNavButtons(false);
-            playSongFromNote(songToPlay, currentNoteIndex);
-        } else {
-            addUserMessage('parse-error', "Invalid song format. Please start with '!bongo' or '!bongox rtttl'.");
-        }
-    } else if (!isPaused) {
-        // --- PAUSE LOGIC ---
-        isPaused = true;
-        updatePlayButton('▶', 'Resume');
-        // Clear all scheduled setTimeout calls
-        for (let id of currentSong.timeoutIDs) clearTimeout(id);
-        
-        // **CRITICAL FIX**: Immediately cancel scheduled audio events and mute the synth
-        if (mainGainNode && audioContext) {
-            mainGainNode.gain.cancelScheduledValues(audioContext.currentTime);
-            mainGainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        }
-        
-        toggleNavButtons(true);
+  // 3. The original play/pause logic
+  if (!playing) {
+    removeUserMessage('parse-error');
+    const songToPlay = currentSong || parseMessage(document.getElementById('song-input').value.trim());
+    if (songToPlay) {
+      if (songToPlay !== currentSong) {
+        allPlaybacks = [];
+        currentNoteIndex = 0;
+      }
+      updatePlayButton('⏸', 'Pause');
+      toggleNavButtons(false);
+      playSongFromNote(songToPlay, currentNoteIndex);
     } else {
-        // --- RESUME LOGIC ---
-        isPaused = false;
-        updatePlayButton('⏸', 'Pause');
-        toggleNavButtons(false);
-        playSongFromNote(currentSong, currentNoteIndex);
+      addUserMessage('parse-error', "Invalid song format. Please start with '!bongo' or '!bongox rtttl'.");
     }
+  } else if (!isPaused) {
+    // --- PAUSE LOGIC ---
+    isPaused = true;
+    updatePlayButton('▶', 'Resume');
+    // Clear all scheduled setTimeout calls
+    for (let id of currentSong.timeoutIDs) clearTimeout(id);
+
+    // **CRITICAL FIX**: Immediately cancel scheduled audio events and mute the synth
+    if (mainGainNode && audioContext) {
+      mainGainNode.gain.cancelScheduledValues(audioContext.currentTime);
+      mainGainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    }
+
+    toggleNavButtons(true);
+  } else {
+    // --- RESUME LOGIC ---
+    isPaused = false;
+    updatePlayButton('⏸', 'Pause');
+    toggleNavButtons(false);
+    playSongFromNote(currentSong, currentNoteIndex);
+  }
 });
 
 
@@ -854,72 +861,72 @@ document.getElementById('play-pause-button').addEventListener('click', async () 
  * @param {number} index - The index of the note to seek to.
  */
 function seekToNote(index) {
-    // Ensure there is a song loaded and the index is valid.
-    if (!currentSong || allPlaybacks.length === 0 || index < 0 || index >= allPlaybacks.length) {
-        return;
-    }
+  // Ensure there is a song loaded and the index is valid.
+  if (!currentSong || allPlaybacks.length === 0 || index < 0 || index >= allPlaybacks.length) {
+    return;
+  }
 
-    // Stop any currently scheduled playback.
-    for (let id of currentSong.timeoutIDs) {
-        clearTimeout(id);
-    }
-    currentSong.timeoutIDs = [];
+  // Stop any currently scheduled playback.
+  for (let id of currentSong.timeoutIDs) {
+    clearTimeout(id);
+  }
+  currentSong.timeoutIDs = [];
 
-    // Mute synth to prevent hanging notes, especially when seeking while playing.
-    if (mainGainNode && audioContext) {
-        mainGainNode.gain.cancelScheduledValues(audioContext.currentTime);
-        mainGainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    }
+  // Mute synth to prevent hanging notes, especially when seeking while playing.
+  if (mainGainNode && audioContext) {
+    mainGainNode.gain.cancelScheduledValues(audioContext.currentTime);
+    mainGainNode.gain.setValueAtTime(0, audioContext.currentTime);
+  }
 
-    // Update the current note index.
-    currentNoteIndex = index;
+  // Update the current note index.
+  currentNoteIndex = index;
 
-    if (playing && !isPaused) {
-        // If it was playing, restart the playback loop from the new index.
-        playSongFromNote(currentSong, currentNoteIndex);
-    } else {
-        // If it was paused or finished, update the UI and preview ALL notes in the group.
-        updateNoteDisplay();
-        highlightCurrentNote(currentNoteIndex);
+  if (playing && !isPaused) {
+    // If it was playing, restart the playback loop from the new index.
+    playSongFromNote(currentSong, currentNoteIndex);
+  } else {
+    // If it was paused or finished, update the UI and preview ALL notes in the group.
+    updateNoteDisplay();
+    highlightCurrentNote(currentNoteIndex);
 
-        const targetTime = allPlaybacks[currentNoteIndex].time;
-        const isRtttl = currentSong.notation === 'rtttl' || currentSong.notation === 'rttl';
+    const targetTime = allPlaybacks[currentNoteIndex].time;
+    const isRtttl = currentSong.notation === 'rtttl' || currentSong.notation === 'rttl';
 
-        // Play all events at the target timestamp
-        for (let i = currentNoteIndex; i < allPlaybacks.length; i++) {
-            const playback = allPlaybacks[i];
-            if (playback.time === targetTime) {
-                playback.cmd(...playback.args);
+    // Play all events at the target timestamp
+    for (let i = currentNoteIndex; i < allPlaybacks.length; i++) {
+      const playback = allPlaybacks[i];
+      if (playback.time === targetTime) {
+        playback.cmd(...playback.args);
 
-                // If it's an RTTL note, we must also find and schedule its mute command.
-                if (isRtttl && playback.isNoteStart) {
-                    // Search for the corresponding mute command.
-                    for (let j = i + 1; j < allPlaybacks.length; j++) {
-                        const futurePlayback = allPlaybacks[j];
-                        if (futurePlayback.isMute) {
-                            const duration = futurePlayback.time - playback.time;
-                            const muteTimeoutId = setTimeout(() => {
-                                futurePlayback.cmd(...futurePlayback.args);
-                            }, duration);
-                            // Store this timeout so it can be cleared if the user seeks again quickly.
-                            currentSong.timeoutIDs.push(muteTimeoutId); 
-                            break; // Stop searching once we've scheduled the mute.
-                        }
-                    }
-                }
-            } else {
-                // Since the array is sorted by time, we can stop once the time changes.
-                break;
+        // If it's an RTTL note, we must also find and schedule its mute command.
+        if (isRtttl && playback.isNoteStart) {
+          // Search for the corresponding mute command.
+          for (let j = i + 1; j < allPlaybacks.length; j++) {
+            const futurePlayback = allPlaybacks[j];
+            if (futurePlayback.isMute) {
+              const duration = futurePlayback.time - playback.time;
+              const muteTimeoutId = setTimeout(() => {
+                futurePlayback.cmd(...futurePlayback.args);
+              }, duration);
+              // Store this timeout so it can be cleared if the user seeks again quickly.
+              currentSong.timeoutIDs.push(muteTimeoutId);
+              break; // Stop searching once we've scheduled the mute.
             }
+          }
         }
+      } else {
+        // Since the array is sorted by time, we can stop once the time changes.
+        break;
+      }
     }
+  }
 }
 
 /**
  * Event listener for the 'Reset' button. Seeks to the beginning of the song.
  */
 document.getElementById('restart-button').addEventListener('click', () => {
-    seekToNote(0);
+  seekToNote(0);
 });
 
 
@@ -927,57 +934,57 @@ document.getElementById('restart-button').addEventListener('click', () => {
  * Event listener for the 'Previous Note' button. Seeks to the beginning of the previous note group.
  */
 document.getElementById('prev-note-button').addEventListener('click', () => {
-    if (!currentSong || currentNoteIndex <= 0) return;
+  if (!currentSong || currentNoteIndex <= 0) return;
 
-    // Find the index of the previous playback object that marks the start of a note.
-    for (let i = currentNoteIndex - 1; i >= 0; i--) {
-        const playback = allPlaybacks[i];
-        if (playback.isNoteStart || allPlaybacks[i].time < allPlaybacks[currentNoteIndex].time) {
-            seekToNote(i);
-            return;
-        }
+  // Find the index of the previous playback object that marks the start of a note.
+  for (let i = currentNoteIndex - 1; i >= 0; i--) {
+    const playback = allPlaybacks[i];
+    if (playback.isNoteStart || allPlaybacks[i].time < allPlaybacks[currentNoteIndex].time) {
+      seekToNote(i);
+      return;
     }
-    // If loop finishes, seek to the very first note
-    seekToNote(0);
+  }
+  // If loop finishes, seek to the very first note
+  seekToNote(0);
 });
 
 /**
  * Event listener for the 'Next Note' button. Seeks to the beginning of the next note group.
  */
 document.getElementById('next-note-button').addEventListener('click', () => {
-    if (!currentSong || currentNoteIndex >= allPlaybacks.length - 1) return;
+  if (!currentSong || currentNoteIndex >= allPlaybacks.length - 1) return;
 
-    // Find the index of the next playback object that marks the start of a note.
-    for (let i = currentNoteIndex + 1; i < allPlaybacks.length; i++) {
-        const playback = allPlaybacks[i];
-        if (playback.isNoteStart || playback.time > allPlaybacks[currentNoteIndex].time) {
-            // Check if it's an outro animation, if so don't seek to it.
-            if (playback.cmd.name === 'outroAnimation') continue;
-            seekToNote(i);
-            return;
-        }
+  // Find the index of the next playback object that marks the start of a note.
+  for (let i = currentNoteIndex + 1; i < allPlaybacks.length; i++) {
+    const playback = allPlaybacks[i];
+    if (playback.isNoteStart || playback.time > allPlaybacks[currentNoteIndex].time) {
+      // Check if it's an outro animation, if so don't seek to it.
+      if (playback.cmd.name === 'outroAnimation') continue;
+      seekToNote(i);
+      return;
     }
+  }
 });/**
- * Event listener for the 'Update Song' button. Stops any currently playing song,
- * resets the player state, and then attempts to parse and play the new song from the input textarea.
- */
+* Event listener for the 'Update Song' button. Stops any currently playing song,
+* resets the player state, and then attempts to parse and play the new song from the input textarea.
+*/
 document.getElementById('update-song-button').addEventListener('click', () => {
-    // 0. Clear any pending change messages
-    showUserMessage('');
+  // 0. Clear any pending change messages
+  showUserMessage('');
 
-    // 1. Stop any current song and reset the state completely.
-    stopSong();
+  // 1. Stop any current song and reset the state completely.
+  stopSong();
 
-    // 2. Try to play the new song from the textarea.
-    const message = document.getElementById('song-input').value.trim();
-    const song = parseMessage(message);
-    if (song) {
-        updatePlayButton('⏸', 'Momentn'); 
-        playSongFromNote(song, 0);
-    } else {
-        alert("Invalid format. Please start with '!bongo ', '!bongox rtttl ', or '!bongox rttl '.");
-        // The player is already in a clean "stopped" state thanks to stopSong().
-    }
+  // 2. Try to play the new song from the textarea.
+  const message = document.getElementById('song-input').value.trim();
+  const song = parseMessage(message);
+  if (song) {
+    updatePlayButton('⏸', 'Momentn');
+    playSongFromNote(song, 0);
+  } else {
+    alert("Invalid format. Please start with '!bongo ', '!bongox rtttl ', or '!bongox rttl '.");
+    // The player is already in a clean "stopped" state thanks to stopSong().
+  }
 });
 
 
@@ -985,61 +992,61 @@ document.getElementById('update-song-button').addEventListener('click', () => {
  * Main DOMContentLoaded listener. Initializes UI components and sets up event handlers.
  */
 document.addEventListener('DOMContentLoaded', () => {
-	const updateBtn = document.getElementById('update-song-button');
-    updateBtn.disabled = true;
+  const updateBtn = document.getElementById('update-song-button');
+  updateBtn.disabled = true;
 
-    notesContainer = document.getElementById('notes-container');
-    userMessageDisplay = document.getElementById('user-message-display');
-	
-    notesContainer = document.getElementById('notes-container');
-    userMessageDisplay = document.getElementById('user-message-display');
+  notesContainer = document.getElementById('notes-container');
+  userMessageDisplay = document.getElementById('user-message-display');
 
-    notesContainer.addEventListener('click', (event) => {
-        if (event.target && event.target.matches('.note')) {
-            const index = parseInt(event.target.dataset.noteIndex);
-            seekToNote(index);
-        }
-    });
-    toggleNavButtons(false); // Ensure nav buttons are disabled on load
-    document.getElementById('restart-button').disabled = true; // Also disable restart on load
+  notesContainer = document.getElementById('notes-container');
+  userMessageDisplay = document.getElementById('user-message-display');
 
-    
-    const songSelector = document.getElementById('song-selector');
-    const songInput = document.getElementById('song-input');
-    
-    // Add listener to show message on textarea change
-    songInput.addEventListener('input', () => {
-        showUserMessage("Song input changed — update it to test the new version.");
-    });
+  notesContainer.addEventListener('click', (event) => {
+    if (event.target && event.target.matches('.note')) {
+      const index = parseInt(event.target.dataset.noteIndex);
+      seekToNote(index);
+    }
+  });
+  toggleNavButtons(false); // Ensure nav buttons are disabled on load
+  document.getElementById('restart-button').disabled = true; // Also disable restart on load
 
 
-    // Populate the dropdown with songs from the array
-    exampleSongs.forEach(song => {
-        const option = document.createElement('option');
-        option.value = song.notation;
-        option.textContent = song.name;
-        songSelector.appendChild(option);
-    });
+  const songSelector = document.getElementById('song-selector');
+  const songInput = document.getElementById('song-input');
 
-    // Add event listener to handle selection
-    songSelector.addEventListener('change', (event) => {
-        const selectedNotation = event.target.value;
-        if (selectedNotation) {
-            songInput.value = selectedNotation;
-            notesContainer.innerHTML = '';
-            showUserMessage(''); // Clear message on new selection
-            stopSong();
-        }
-    });
-
-    document.getElementById("song-input").addEventListener("paste",(event)=>{
-		//notesContainer.innerHTML = '';
-        stopSong()
-	
-	})
+  // Add listener to show message on textarea change
+  songInput.addEventListener('input', () => {
+    showUserMessage("Song input changed — update it to test the new version.");
+  });
 
 
-    
+  // Populate the dropdown with songs from the array
+  exampleSongs.forEach(song => {
+    const option = document.createElement('option');
+    option.value = song.notation;
+    option.textContent = song.name;
+    songSelector.appendChild(option);
+  });
+
+  // Add event listener to handle selection
+  songSelector.addEventListener('change', (event) => {
+    const selectedNotation = event.target.value;
+    if (selectedNotation) {
+      songInput.value = selectedNotation;
+      notesContainer.innerHTML = '';
+      showUserMessage(''); // Clear message on new selection
+      stopSong();
+    }
+  });
+
+  document.getElementById("song-input").addEventListener("paste",(event)=>{
+    //notesContainer.innerHTML = '';
+    stopSong()
+
+  })
+
+
+
 });
 
 
