@@ -53,6 +53,10 @@ const exampleSongs = [
     "notation": "!bongo ,300 ^5# . . . ^5# . ^4# ^2# . . . . ^2# . ^4# ^4# . 6# . 6# . ^1# . 7 . . . . ^7 . ^6# . ^5# . . . ^5# . ^4# ^2# . . . . ^2# . ^4# ^4# . 6# . 6# . ^1# . 7 . . . . ^7 . ^6# . ^5# . . . ^5# . ^4# ^2# . . . . ^2# . ^4# ^4# . 6# . 6# . ^1# . 7 ."
   },
   {
+  "name": "Axel F",
+  "notation": "!bongo ,300 x rv4 c t#4 xr2# xr2# cy#1 xr2# xw#4 rv4 c ^r4 r xrv6# c^r#1 x^r2# x^q#4 rv1# c^r r1# xw#2# xw#2# cqq1 xt2# xr4 4 c . . cx2# x1# av6# sv5# fxv4 c^q ^q4 x^w#2# x^w#2# c^w#1 x^w2# x^w4 v4 c^q ^q4 ^w# x^w#v6# c^w1 x^q2# x4 v1# ct# t#1# xt#2# xt#2# cy#1 xy#2# x4 4 c^q ^q ^q cxy#2# x^q1 av6# sv5# fxv4 c^q ^q4 x^w#2# x^w#2# c^w#1# x^w2# x^w4 v4 c^q ^q4 ^w# x^w#v6# c^w1 x^q2# x4 . ct# t#1# xt#2# xt#2# cy#1# xy#2# x4 4 c^q ^q ^q cxy#2# x^q1 av6# sv5# fxv4 c 4 2# 2# 1 2# 4 v4 . 4 . v6# 1 2#"
+  },
+  {
     "name": "Benny hill theme",
     "notation": "!bongox rtttl d=4,o=5,b=125:8d.,16e,8g,8g,16e,16d,16a4,16b4,16d,16b4,8e,16d,16b4,16a4,16b4,8a4,16a4,16a#4,16b4,16d,16e,16d,g,p,16d,16e,16d,8g,8g,16e,16d,16a4,16b4,16d,16b4,8e,16d,16b4,16a4,16b4,8d,16d,16d,16f#,16a,8f,d,p,16d,16e,16d,8g,16g,16g,8g,16g,16g,8g,8g,16e,8e.,8c,8c,8c,8c,16e,16g,16a,16g,16a#,8g,16a,16b,16a#,16b,16a,16b,8d6,16a,16b,16d6,8b,8g,8d,16e6,16b,16b,16d,8a,8g,g"
   },
